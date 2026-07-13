@@ -1,1827 +1,1167 @@
-import { useEffect, useState }
-    from "react";
-
+import { useEffect, useState } from "react";
 
 import {
-
     useNavigate,
-
     useParams,
-
     Link
+} from "react-router-dom";
 
-}
-    from "react-router-dom";
-
-
-
-import MainLayout
-    from "../layouts/MainLayout";
-
-
+import MainLayout from "../layouts/MainLayout";
 
 import {
-
     createIspezione,
-
     getAssets,
-
     getAssetById
-
-}
-    from "../api/api";
+} from "../api/api";
 
 
+function CreateIspezionePage() {
 
 
+    const navigate = useNavigate();
+
+    const { assetId } = useParams();
 
 
-
-
-
-function CreateIspezionePage(){
-
-
-
-    const navigate =
-        useNavigate();
-
-
-
-    const { assetId } =
-        useParams();
-
-
-
-
-
-
-
-    const [assets,setAssets] =
+    const [assets, setAssets] =
         useState([]);
 
 
-
-    const [assetNome,setAssetNome] =
+    const [assetNome, setAssetNome] =
         useState("");
 
 
-
-    const [piani,setPiani] =
+    const [piani, setPiani] =
         useState([]);
 
 
+    const [errors, setErrors] =
+        useState({});
 
 
-
-
-
-    const [error,setError] =
+    const [error, setError] =
         useState("");
 
 
-
-    const [success,setSuccess] =
+    const [success, setSuccess] =
         useState("");
 
 
-
-
-
-
-
-
-    const [ispezione,setIspezione] =
+    const [ispezione, setIspezione] =
         useState({
 
+            titoloIspezione: "",
 
+            dataIspezione: "",
 
-            titoloIspezione:"",
+            operatoreProve: "",
 
+            ingegnere: "",
 
+            referenteConcessionaria: "",
 
-            dataIspezione:"",
+            annotazioniAggiuntive: "",
 
+            stato: "BOZZA",
 
+            createdBy: "",
 
-
-
-
-            operatoreProve:"",
-
-
-
-            ingegnere:"",
-
-
-
-            referenteConcessionaria:"",
-
-
-
-
-
-
-            annotazioniAggiuntive:"",
-
-
-
-
-
-            stato:"BOZZA",
-
-
-
-
-            createdBy:"",
-
-
-
-
-
-
-
-            asset:{
-
+            asset: {
 
                 assetId:
-
                     assetId || ""
-
 
             },
 
+            pianoIndagine: {
 
-
-
-
-
-            pianoIndagine:{
-
-
-                pianoId:""
-
+                pianoId: ""
 
             }
-
-
 
         });
 
 
-
-
-
-
-
-
-
-
-
-
-    useEffect(()=>{
-
-
+    useEffect(() => {
 
         loadData();
 
+    }, []);
 
 
-    },[]);
+    async function loadData() {
 
+        try {
 
-
-
-
-
-
-
-
-
-
-
-
-
-    async function loadData(){
-
-
-
-
-
-        try{
-
-
-
-
-
-
-
-            if(assetId){
-
-
-
-
-
+            if (assetId) {
 
                 const asset =
-
-
                     await getAssetById(
-
                         assetId
-
                     );
 
 
-
-
-
-
-
                 setAssetNome(
-
                     asset.nome
-
                 );
-
-
-
-
-
 
 
                 setPiani(
-
                     asset.piani || []
-
                 );
 
-
-
-
-
-
-
-
-            }else{
-
-
-
-
-
-
+            } else {
 
                 const data =
-
-
                     await getAssets();
 
 
-
-
-
-
-
-
                 setAssets(
-
                     data
-
                 );
-
-
-
-
-
 
             }
 
-
-
-
-
-
-
-
-
-        }catch(error){
-
-
-
-
-
+        } catch (error) {
 
             console.error(error);
 
-
-
-
-
+            setError(
+                "Errore durante il caricamento dei dati"
+            );
 
         }
-
-
-
-
 
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-    async function handleAssetChange(event){
-
-
-
-
-
+    async function handleAssetChange(event) {
 
         const id =
-
-
             event.target.value;
 
 
-
-
-
-
-
-
         setIspezione({
-
-
-
 
             ...ispezione,
 
+            asset: {
 
-
-
-
-
-
-            asset:{
-
-
-
-                assetId:id
-
-
+                assetId: id
 
             },
 
+            pianoIndagine: {
 
-
-
-
-
-
-            pianoIndagine:{
-
-
-
-                pianoId:""
-
-
+                pianoId: ""
 
             }
-
-
-
-
-
 
         });
 
 
+        setPiani([]);
 
 
+        if (id) {
+
+            try {
+
+                const asset =
+                    await getAssetById(id);
 
 
-
-
-
-
-        if(id){
-
-
-
-
-
-
-            const asset =
-
-
-                await getAssetById(
-
-                    id
-
+                setPiani(
+                    asset.piani || []
                 );
 
+            } catch (error) {
 
+                console.error(error);
 
+                setError(
+                    "Errore durante il caricamento dei piani di indagine"
+                );
 
-
-
-
-
-            setPiani(
-
-
-                asset.piani || []
-
-
-            );
-
-
-
-
-
-
-
-
-        }else{
-
-
-
-
-
-
-
-            setPiani([]);
-
-
-
-
-
-
+            }
 
         }
-
-
-
-
-
 
     }
 
 
-
-
-
-
-
-
-
-
-
-
-    function handlePianoChange(event){
-
-
-
-
-
-
+    function handlePianoChange(event) {
 
         setIspezione({
 
-
-
-
-
-
             ...ispezione,
 
-
-
-
-
-
-
-
-            pianoIndagine:{
-
-
-
-
+            pianoIndagine: {
 
                 pianoId:
-
-
                 event.target.value
-
-
-
-
-
 
             }
 
-
-
-
-
-
         });
-
-
-
-
-
-
-    }     function handleChange(event){
-
-
-
-        setIspezione({
-
-
-
-            ...ispezione,
-
-
-
-            [event.target.name]:
-
-            event.target.value
-
-
-
-        });
-
-
-
 
 
         setError("");
 
-
+        setSuccess("");
 
     }
 
 
+    function handleChange(event) {
+
+        const {
+            name,
+            value
+        } = event.target;
 
 
+        setIspezione({
+
+            ...ispezione,
+
+            [name]: value
+
+        });
 
 
+        setErrors({
+
+            ...errors,
+
+            [name]: ""
+
+        });
 
 
+        setError("");
+
+        setSuccess("");
+
+    }
 
 
+    function validateForm() {
+
+        const newErrors = {};
 
 
+        if (
+            !ispezione
+                .titoloIspezione
+                .trim()
+        ) {
 
-    async function handleSubmit(event){
+            newErrors.titoloIspezione =
+
+                "Il titolo dell'ispezione è obbligatorio";
+
+        }
 
 
+        if (!ispezione.dataIspezione) {
+
+            newErrors.dataIspezione =
+
+                "La data dell'ispezione è obbligatoria";
+
+        }
 
 
+        if (
+            !ispezione
+                .createdBy
+                .trim()
+        ) {
+
+            newErrors.createdBy =
+
+                "Il creatore dell'ispezione è obbligatorio";
+
+        }
+
+
+        setErrors(
+            newErrors
+        );
+
+
+        return (
+            Object.keys(newErrors).length === 0
+        );
+
+    }
+
+
+    async function handleSubmit(event) {
 
         event.preventDefault();
 
 
-
-
-
-
-
         setError("");
-
 
         setSuccess("");
 
 
-
-
-
-
-
-
-        try{
-
-
-
-
-
-
-
-
-            await createIspezione(
-
-
-
-                ispezione
-
-
-
-            );
-
-
-
-
-
-
-
-
-
-            setSuccess(
-
-
-                "✅ Ispezione creata correttamente"
-
-
-            );
-
-
-
-
-
-
-
-
-
-            setTimeout(()=>{
-
-
-
-
-
-
-                navigate(
-
-
-                    "/ispezioni"
-
-
-                );
-
-
-
-
-
-
-            },1000);
-
-
-
-
-
-
-
-
-
-        }catch(error){
-
-
-
-
-
-
-
-
-            console.error(error);
-
-
-
-
-
-
-
-
+        if (!validateForm()) {
 
             setError(
-
-
-                "❌ Impossibile creare l'ispezione. Controlla i campi obbligatori."
-
-
+                "Controlla i campi obbligatori"
             );
 
-
-
-
-
-
-
+            return;
 
         }
 
 
+        try {
+
+            await createIspezione(
+                ispezione
+            );
 
 
+            setSuccess(
+                "Ispezione creata correttamente"
+            );
 
+
+            setTimeout(() => {
+
+                navigate(
+                    "/ispezioni"
+                );
+
+            }, 1000);
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            setError(
+
+                error.message
+
+                ||
+
+                "Errore durante la creazione dell'ispezione"
+
+            );
+
+        }
 
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    return(
-
-
-
+    return (
 
         <MainLayout>
-
-
-
-
 
 
             <div style={styles.container}>
 
 
-
-
-
-
-
-
-
                 <Link
-
 
                     to="/ispezioni"
 
-
                     style={styles.backButton}
-
 
                 >
 
-
-
-
-                    ← Ispezioni
-
-
-
-
+                    ← Torna alle ispezioni
 
                 </Link>
-
-
-
-
-
-
-
-
-
-
-
 
 
                 <div style={styles.headerCard}>
 
 
-
-
-
-
-
                     <h1 style={styles.title}>
 
-
-
-
                         Nuova Ispezione
-
-
-
-
 
                     </h1>
 
 
-
-
-
-
-
-
-
                     <p style={styles.subtitle}>
 
-
-
-
-
-                        Stato iniziale: BOZZA
-
-
-
-
-
+                        Crea una nuova ispezione.
+                        Lo stato iniziale sarà BOZZA.
 
                     </p>
-
-
-
-
-
 
 
                 </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
                 <form
-
-
 
                     onSubmit={handleSubmit}
 
-
-
                     style={styles.formCard}
-
-
 
                 >
 
 
-
-
-
-
-
                     {
 
+                        success &&
 
-                        error &&
+                        <div style={styles.successBox}>
 
-
-
-
-                        <div style={styles.errorBox}>
-
-
-
-
-
-                            {error}
-
-
-
-
+                            {success}
 
                         </div>
-
-
 
                     }
 
 
-
-
-
-
-
-
-
                     {
 
+                        error &&
 
-                        success &&
+                        <div style={styles.errorBox}>
 
-
-
-
-                        <div style={styles.successBox}>
-
-
-
-
-
-                            {success}
-
-
-
-
+                            {error}
 
                         </div>
 
+                    }
 
 
-                    }                    {
+                    <h3 style={styles.sectionTitle}>
 
-                    !assetId
+                        Informazioni principali
 
-                        ?
-
-                        <select
+                    </h3>
 
 
-                            required
+                    <div style={styles.grid}>
 
 
-                            value={ispezione.asset.assetId}
+                        {
+
+                            !assetId
+
+                                ?
+
+                                <SelectField
+
+                                    label="Opera"
+
+                                    value={
+                                        ispezione
+                                            .asset
+                                            .assetId
+                                    }
+
+                                    onChange={
+                                        handleAssetChange
+                                    }
+
+                                >
+
+                                    <option value="">
+
+                                        Seleziona Opera
+
+                                    </option>
 
 
-                            onChange={handleAssetChange}
+                                    {
+
+                                        assets.map((asset) => (
+
+                                            <option
+
+                                                key={
+                                                    asset.assetId
+                                                }
+
+                                                value={
+                                                    asset.assetId
+                                                }
+
+                                            >
+
+                                                {asset.nome}
+
+                                            </option>
+
+                                        ))
+
+                                    }
+
+                                </SelectField>
+
+                                :
+
+                                <InputField
+
+                                    label="Opera"
+
+                                    value={assetNome}
+
+                                    disabled
+
+                                />
+
+                        }
 
 
-                            style={styles.input}
+                        <SelectField
 
+                            label="Piano di indagine"
+
+                            value={
+                                ispezione
+                                    .pianoIndagine
+                                    .pianoId
+                            }
+
+                            onChange={
+                                handlePianoChange
+                            }
 
                         >
 
-
-
                             <option value="">
 
-
-                                Seleziona Opera
-
+                                Nessun piano di indagine
 
                             </option>
 
 
+                            {
+
+                                piani.map((piano) => (
+
+                                    <option
+
+                                        key={
+                                            piano.pianoId
+                                        }
+
+                                        value={
+                                            piano.pianoId
+                                        }
+
+                                    >
+
+                                        {piano.codicePiano}
+
+                                    </option>
+
+                                ))
+
+                            }
+
+                        </SelectField>
 
 
+                        <InputField
 
+                            label="Titolo ispezione *"
 
+                            name="titoloIspezione"
 
-                            {assets.map((a)=>(
+                            value={
+                                ispezione
+                                    .titoloIspezione
+                            }
 
+                            onChange={
+                                handleChange
+                            }
 
-
-
-                                <option
-
-
-                                    key={a.assetId}
-
-
-                                    value={a.assetId}
-
-
-                                >
-
-
-
-                                    {a.nome}
-
-
-
-
-                                </option>
-
-
-
-
-                            ))}
-
-
-
-
-
-                        </select>
-
-
-
-
-
-                        :
-
-
-
-
-                        <input
-
-
-                            disabled
-
-
-                            value={assetNome}
-
-
-                            style={styles.input}
-
+                            error={
+                                errors.titoloIspezione
+                            }
 
                         />
 
 
+                        <InputField
 
-                }
+                            label="Data ispezione *"
 
+                            name="dataIspezione"
 
+                            type="date"
 
+                            value={
+                                ispezione
+                                    .dataIspezione
+                            }
 
+                            onChange={
+                                handleChange
+                            }
 
+                            error={
+                                errors.dataIspezione
+                            }
 
+                        />
 
 
+                        <InputField
 
-                    <select
+                            label="Creato da *"
 
+                            name="createdBy"
 
+                            value={
+                                ispezione.createdBy
+                            }
 
-                        value={ispezione.pianoIndagine.pianoId}
+                            onChange={
+                                handleChange
+                            }
 
+                            error={
+                                errors.createdBy
+                            }
 
+                        />
 
-                        onChange={handlePianoChange}
 
+                    </div>
 
 
-                        style={styles.input}
+                    <h3 style={styles.sectionTitle}>
 
+                        Personale
 
+                    </h3>
 
-                    >
 
+                    <div style={styles.grid}>
 
 
+                        <InputField
 
+                            label="Operatore prove"
 
-                        <option value="">
+                            name="operatoreProve"
 
+                            value={
+                                ispezione
+                                    .operatoreProve
+                            }
 
+                            onChange={
+                                handleChange
+                            }
 
-                            Seleziona Piano Indagine
+                        />
 
 
+                        <InputField
 
-                        </option>
+                            label="Ingegnere"
 
+                            name="ingegnere"
 
+                            value={
+                                ispezione
+                                    .ingegnere
+                            }
 
+                            onChange={
+                                handleChange
+                            }
 
+                        />
 
 
+                        <InputField
 
+                            label="Referente concessionaria"
 
-                        {piani.map((p)=>(
+                            name="referenteConcessionaria"
 
+                            value={
+                                ispezione
+                                    .referenteConcessionaria
+                            }
 
+                            onChange={
+                                handleChange
+                            }
 
+                        />
 
-                            <option
 
+                    </div>
 
-                                key={p.pianoId}
 
+                    <div style={styles.group}>
 
-                                value={p.pianoId}
 
+                        <label style={styles.label}>
 
-                            >
+                            Annotazioni aggiuntive
 
+                        </label>
 
 
+                        <textarea
 
-                                {p.codicePiano}
+                            name="annotazioniAggiuntive"
 
+                            value={
+                                ispezione
+                                    .annotazioniAggiuntive
+                            }
 
+                            onChange={
+                                handleChange
+                            }
 
+                            style={styles.textarea}
 
-                            </option>
+                        />
 
 
-
-
-
-                        ))}
-
-
-
-
-
-
-                    </select>
-
-
-
-
-
-
-
-
-
-
-
-
-                    <input
-
-
-
-                        required
-
-
-
-                        name="titoloIspezione"
-
-
-
-                        placeholder="Titolo Ispezione *"
-
-
-
-                        value={ispezione.titoloIspezione}
-
-
-
-                        onChange={handleChange}
-
-
-
-                        style={styles.input}
-
-
-
-                    />
-
-
-
-
-
-
-
-
-
-                    <input
-
-
-
-
-                        type="date"
-
-
-
-                        name="dataIspezione"
-
-
-
-                        value={ispezione.dataIspezione}
-
-
-
-                        onChange={handleChange}
-
-
-
-                        style={styles.input}
-
-
-
-                    />
-
-
-
-
-
-
-
-
-
-
-                    <input
-
-
-
-                        name="createdBy"
-
-
-
-                        placeholder="Creato da"
-
-
-
-                        value={ispezione.createdBy}
-
-
-
-                        onChange={handleChange}
-
-
-
-                        style={styles.input}
-
-
-
-                    />
-
-
-
-
-
-
-
-
-
-                    <input
-
-
-
-                        name="operatoreProve"
-
-
-
-                        placeholder="Operatore prove"
-
-
-
-                        value={ispezione.operatoreProve}
-
-
-
-                        onChange={handleChange}
-
-
-
-                        style={styles.input}
-
-
-
-                    />
-
-
-
-
-
-
-
-
-
-
-                    <input
-
-
-
-                        name="ingegnere"
-
-
-
-                        placeholder="Ingegnere"
-
-
-
-                        value={ispezione.ingegnere}
-
-
-
-                        onChange={handleChange}
-
-
-
-                        style={styles.input}
-
-
-
-                    />
-
-
-
-
-
-
-
-
-
-
-                    <input
-
-
-
-                        name="referenteConcessionaria"
-
-
-
-                        placeholder="Referente concessionaria"
-
-
-
-                        value={ispezione.referenteConcessionaria}
-
-
-
-                        onChange={handleChange}
-
-
-
-                        style={styles.input}
-
-
-
-                    />
-
-
-
-
-
-
-
-
-
-
-
-                    <textarea
-
-
-
-                        name="annotazioniAggiuntive"
-
-
-
-                        placeholder="Annotazioni"
-
-
-
-                        value={ispezione.annotazioniAggiuntive}
-
-
-
-                        onChange={handleChange}
-
-
-
-                        style={styles.textarea}
-
-
-
-                    />
-
-
-
-
-
-
-
-
-
-
+                    </div>
 
 
                     <button
 
-
-
                         type="submit"
-
-
 
                         style={styles.button}
 
-
-
                     >
 
-
-
-
-                        Salva Ispezione
-
-
-
-
+                        Crea Ispezione
 
                     </button>
-
-
-
-
-
-
-
 
 
                 </form>
 
 
-
-
-
-
-
             </div>
-
-
-
-
 
 
         </MainLayout>
 
+    );
+
+}
 
 
+function InputField({
+
+                        label,
+
+                        name,
+
+                        value,
+
+                        onChange,
+
+                        type = "text",
+
+                        error,
+
+                        disabled = false
+
+                    }) {
+
+    return (
+
+        <div style={styles.group}>
+
+
+            <label style={styles.label}>
+
+                {label}
+
+            </label>
+
+
+            <input
+
+                type={type}
+
+                name={name}
+
+                value={value}
+
+                onChange={onChange}
+
+                disabled={disabled}
+
+                style={{
+
+                    ...styles.input,
+
+                    ...(error
+                        ? styles.inputError
+                        : {}),
+
+                    ...(disabled
+                        ? styles.disabledInput
+                        : {})
+
+                }}
+
+            />
+
+
+            {
+
+                error &&
+
+                <span style={styles.fieldError}>
+
+                    {error}
+
+                </span>
+
+            }
+
+
+        </div>
 
     );
 
+}
 
 
-} const styles = {
+function SelectField({
+
+                         label,
+
+                         value,
+
+                         onChange,
+
+                         children
+
+                     }) {
+
+    return (
+
+        <div style={styles.group}>
 
 
+            <label style={styles.label}>
+
+                {label}
+
+            </label>
 
 
-    container:{
+            <select
+
+                value={value}
+
+                onChange={onChange}
+
+                style={styles.input}
+
+            >
+
+                {children}
+
+            </select>
 
 
-        maxWidth:"900px",
+        </div>
+
+    );
+
+}
 
 
-        margin:"0 auto",
+const styles = {
 
 
-        display:"flex",
+    container: {
 
+        maxWidth: "900px",
 
-        flexDirection:"column",
+        margin: "0 auto",
 
+        display: "flex",
 
-        gap:"18px",
+        flexDirection: "column",
 
+        gap: "18px",
 
-        paddingBottom:"120px"
-
+        paddingBottom: "120px"
 
     },
 
 
+    backButton: {
 
+        width: "fit-content",
 
+        backgroundColor: "#ffffff",
 
+        color: "#1e293b",
 
+        padding: "10px 14px",
 
+        borderRadius: "10px",
 
+        border: "1px solid #e2e8f0",
 
-    backButton:{
+        textDecoration: "none",
 
-
-        width:"fit-content",
-
-
-        backgroundColor:"#ffffff",
-
-
-        color:"#1e293b",
-
-
-        padding:"10px 14px",
-
-
-        borderRadius:"10px",
-
-
-        border:"1px solid #e2e8f0",
-
-
-        textDecoration:"none",
-
-
-        fontWeight:"600"
-
+        fontWeight: "700"
 
     },
 
 
+    headerCard: {
 
+        backgroundColor: "#ffffff",
 
+        padding: "22px",
 
+        borderRadius: "18px",
 
+        border: "1px solid #e2e8f0",
 
+        display: "flex",
 
+        flexDirection: "column",
 
-
-    headerCard:{
-
-
-        backgroundColor:"#ffffff",
-
-
-        padding:"22px",
-
-
-        borderRadius:"18px",
-
-
-        border:"1px solid #e2e8f0",
-
-
-        display:"flex",
-
-
-        flexDirection:"column",
-
-
-        gap:"6px"
-
+        gap: "6px"
 
     },
 
 
+    title: {
 
+        margin: 0,
 
+        color: "#1e293b",
 
+        fontSize: "30px",
 
-
-
-
-
-    title:{
-
-
-        margin:0,
-
-
-        color:"#1e293b",
-
-
-        fontSize:"30px",
-
-
-        fontWeight:"700"
-
+        fontWeight: "700"
 
     },
 
 
+    subtitle: {
 
+        margin: 0,
 
+        color: "#64748b",
 
-
-
-
-
-
-    subtitle:{
-
-
-        margin:0,
-
-
-        color:"#64748b",
-
-
-        fontSize:"14px"
-
+        fontSize: "14px"
 
     },
 
 
+    formCard: {
 
+        backgroundColor: "#ffffff",
 
+        padding: "22px",
 
+        borderRadius: "18px",
 
+        border: "1px solid #e2e8f0",
 
+        display: "flex",
 
+        flexDirection: "column",
 
-
-
-    formCard:{
-
-
-        backgroundColor:"#ffffff",
-
-
-        padding:"22px",
-
-
-        borderRadius:"18px",
-
-
-        border:"1px solid #e2e8f0",
-
-
-        display:"flex",
-
-
-        flexDirection:"column",
-
-
-        gap:"16px",
-
+        gap: "20px",
 
         boxShadow:
-
             "0 4px 12px rgba(15,23,42,0.05)"
 
+    },
+
+
+    sectionTitle: {
+
+        margin: "10px 0 0",
+
+        color: "#1e293b"
 
     },
 
 
+    grid: {
 
+        display: "grid",
 
+        gridTemplateColumns:
+            "repeat(auto-fit,minmax(250px,1fr))",
 
-
-
-
-
-
-    input:{
-
-
-        height:"48px",
-
-
-        padding:"0 14px",
-
-
-        borderRadius:"10px",
-
-
-        border:"1px solid #cbd5e1",
-
-
-        fontSize:"14px",
-
-
-        outline:"none",
-
-
-        color:"#1e293b",
-
-
-        backgroundColor:"#ffffff"
-
+        gap: "16px"
 
     },
 
 
+    group: {
 
+        display: "flex",
 
+        flexDirection: "column",
 
-
-
-
-
-
-    textarea:{
-
-
-        minHeight:"120px",
-
-
-        padding:"14px",
-
-
-        borderRadius:"12px",
-
-
-        border:"1px solid #cbd5e1",
-
-
-        resize:"vertical",
-
-
-        outline:"none",
-
-
-        fontSize:"14px",
-
-
-        color:"#1e293b"
-
+        gap: "8px"
 
     },
 
 
+    label: {
 
+        fontWeight: "700",
 
+        color: "#475569",
 
-
-
-
-
-
-    button:{
-
-
-        height:"50px",
-
-
-        borderRadius:"10px",
-
-
-        border:"none",
-
-
-        backgroundColor:"#1e293b",
-
-
-        color:"#ffffff",
-
-
-        fontWeight:"700",
-
-
-        cursor:"pointer",
-
-
-        fontSize:"15px"
-
+        fontSize: "14px"
 
     },
 
 
+    input: {
 
+        height: "46px",
 
+        padding: "0 12px",
 
+        borderRadius: "10px",
 
+        border: "1px solid #cbd5e1",
 
+        outline: "none",
 
+        fontSize: "14px",
 
+        color: "#1e293b",
 
-    errorBox:{
+        backgroundColor: "#ffffff",
 
-
-        backgroundColor:"#fee2e2",
-
-
-        color:"#991b1b",
-
-
-        padding:"12px 14px",
-
-
-        borderRadius:"10px",
-
-
-        fontWeight:"600",
-
-
-        border:"1px solid #fecaca"
-
+        boxSizing: "border-box"
 
     },
 
 
+    inputError: {
+
+        border: "1px solid #dc2626"
+
+    },
 
 
+    disabledInput: {
+
+        backgroundColor: "#f8fafc",
+
+        color: "#64748b",
+
+        cursor: "not-allowed"
+
+    },
 
 
+    textarea: {
+
+        minHeight: "120px",
+
+        padding: "12px",
+
+        borderRadius: "10px",
+
+        border: "1px solid #cbd5e1",
+
+        resize: "vertical",
+
+        outline: "none",
+
+        fontSize: "14px",
+
+        boxSizing: "border-box"
+
+    },
 
 
+    fieldError: {
+
+        color: "#dc2626",
+
+        fontSize: "13px",
+
+        fontWeight: "600"
+
+    },
 
 
-    successBox:{
+    button: {
+
+        height: "50px",
+
+        borderRadius: "10px",
+
+        border: "none",
+
+        backgroundColor: "#1e293b",
+
+        color: "#ffffff",
+
+        fontWeight: "700",
+
+        cursor: "pointer",
+
+        fontSize: "15px"
+
+    },
 
 
-        backgroundColor:"#dcfce7",
+    errorBox: {
+
+        backgroundColor: "#fee2e2",
+
+        color: "#991b1b",
+
+        padding: "12px 14px",
+
+        borderRadius: "10px",
+
+        fontWeight: "600",
+
+        border: "1px solid #fecaca"
+
+    },
 
 
-        color:"#166534",
+    successBox: {
 
+        backgroundColor: "#dcfce7",
 
-        padding:"12px 14px",
+        color: "#166534",
 
+        padding: "12px 14px",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
+        fontWeight: "600",
 
-        fontWeight:"600",
-
-
-        border:"1px solid #bbf7d0"
-
+        border: "1px solid #bbf7d0"
 
     }
 
-
-
 };
-
-
-
-
-
 
 
 export default CreateIspezionePage;

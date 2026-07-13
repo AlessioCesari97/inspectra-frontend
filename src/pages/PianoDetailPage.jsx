@@ -68,16 +68,17 @@ const styles = {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        flexWrap: "wrap"
+        flexWrap: "wrap",
+        gap: "15px"
 
     },
 
 
     actions: {
 
-        display:"flex",
-        gap:"10px",
-        flexWrap:"wrap"
+        display: "flex",
+        gap: "10px",
+        flexWrap: "wrap"
 
     },
 
@@ -108,8 +109,22 @@ const styles = {
         borderRadius: "10px",
         textDecoration: "none",
         fontWeight: "600",
-        border:"none",
-        cursor:"pointer"
+        border: "none",
+        cursor: "pointer"
+
+    },
+
+
+    disabledButton: {
+
+        backgroundColor: "#94a3b8",
+        color: "#ffffff",
+        padding: "11px 16px",
+        borderRadius: "10px",
+        textDecoration: "none",
+        fontWeight: "600",
+        border: "none",
+        cursor: "not-allowed"
 
     },
 
@@ -150,32 +165,50 @@ const styles = {
 
     archivedBox: {
 
-        background:"#f1f5f9",
-        border:"1px solid #cbd5e1",
-        padding:"12px",
-        borderRadius:"10px",
-        color:"#475569",
-        fontWeight:"600"
+        background: "#f1f5f9",
+        border: "1px solid #cbd5e1",
+        padding: "12px",
+        borderRadius: "10px",
+        color: "#475569",
+        fontWeight: "600"
 
     },
 
+
+    successBox: {
+
+        backgroundColor: "#f8fafc",
+        border: "1px solid #cbd5e1",
+        borderRadius: "10px",
+        padding: "12px",
+        color: "#1e293b",
+        fontWeight: "600"
+
+    },
+
+
+    errorBox: {
+
+        backgroundColor: "#f8fafc",
+        border: "1px solid #cbd5e1",
+        borderRadius: "10px",
+        padding: "12px",
+        color: "#1e293b",
+        fontWeight: "600"
+
+    },
+
+
     editButton: {
 
-        backgroundColor:"#ffffff",
-
-        color:"#1e293b",
-
-        padding:"11px 16px",
-
-        borderRadius:"10px",
-
-        textDecoration:"none",
-
-        fontWeight:"600",
-
-        border:"1px solid #cbd5e1",
-
-        cursor:"pointer"
+        backgroundColor: "#ffffff",
+        color: "#1e293b",
+        padding: "11px 16px",
+        borderRadius: "10px",
+        textDecoration: "none",
+        fontWeight: "600",
+        border: "1px solid #cbd5e1",
+        cursor: "pointer"
 
     },
 
@@ -215,8 +248,7 @@ const styles = {
 
 
 
-
-function PianoDetailPage(){
+function PianoDetailPage() {
 
 
     const { id } =
@@ -228,23 +260,35 @@ function PianoDetailPage(){
 
 
 
-    const [piano,setPiano] =
+    const [piano, setPiano] =
         useState(null);
 
 
+    const [archiving, setArchiving] =
+        useState(false);
+
+
+    const [successMessage, setSuccessMessage] =
+        useState("");
+
+
+    const [errorMessage, setErrorMessage] =
+        useState("");
 
 
 
 
 
 
-    useEffect(()=>{
+
+
+    useEffect(() => {
 
 
         loadPiano();
 
 
-    },[id]);
+    }, [id]);
 
 
 
@@ -253,10 +297,10 @@ function PianoDetailPage(){
 
 
 
-    async function loadPiano(){
+    async function loadPiano() {
 
 
-        try{
+        try {
 
 
             const data =
@@ -268,7 +312,7 @@ function PianoDetailPage(){
 
 
 
-        }catch(error){
+        } catch (error) {
 
 
             console.error(error);
@@ -286,18 +330,10 @@ function PianoDetailPage(){
 
 
 
-
-    async function handleArchivia(){
-
-
-        const conferma =
-            window.confirm(
-                "Vuoi archiviare questo piano?"
-            );
+    async function handleArchivia() {
 
 
-
-        if(!conferma){
+        if (archiving) {
 
             return;
 
@@ -305,37 +341,102 @@ function PianoDetailPage(){
 
 
 
-
-        try{
-
-
-            await archiviaPiano(id);
+        if (piano.stato !== "COMPLETATO") {
 
 
+            setErrorMessage(
 
-            const aggiornato =
-                await getPianoById(id);
+                "Il piano può essere archiviato solo quando è completato."
 
-
-
-            setPiano(aggiornato);
+            );
 
 
+            return;
 
-        }catch(error){
+        }
+
+
+
+        const conferma =
+            window.confirm(
+
+                "Vuoi archiviare questo piano? Dopo l'archiviazione non sarà più possibile modificarlo."
+
+            );
+
+
+
+        if (!conferma) {
+
+            return;
+
+        }
+
+
+
+        try {
+
+
+            setArchiving(true);
+
+            setSuccessMessage("");
+
+            setErrorMessage("");
+
+
+
+            const pianoArchiviato =
+
+                await archiviaPiano(id);
+
+
+
+            /*
+             * Usiamo direttamente la risposta
+             * restituita dalla PUT.
+             *
+             * Non facciamo una seconda GET.
+             */
+
+
+            setPiano(pianoArchiviato);
+
+
+
+            setSuccessMessage(
+
+                "Piano archiviato correttamente."
+
+            );
+
+
+
+        } catch (error) {
 
 
             console.error(error);
 
 
-            alert(
 
-                "Il piano può essere archiviato solo quando è COMPLETATO"
+            setErrorMessage(
+
+                error.message
+
+                ||
+
+                "Errore durante l'archiviazione del piano."
 
             );
 
 
+        } finally {
+
+
+            setArchiving(false);
+
+
         }
+
 
     }
 
@@ -346,12 +447,10 @@ function PianoDetailPage(){
 
 
 
+    if (!piano) {
 
 
-    if(!piano){
-
-
-        return(
+        return (
 
             <MainLayout>
 
@@ -365,7 +464,6 @@ function PianoDetailPage(){
 
 
     }
-
 
 
 
@@ -407,10 +505,7 @@ function PianoDetailPage(){
 
 
 
-
-
-
-    return(
+    return (
 
 
         <MainLayout>
@@ -435,7 +530,6 @@ function PianoDetailPage(){
                     {backText}
 
                 </Link>
-
 
 
 
@@ -489,7 +583,6 @@ function PianoDetailPage(){
 
 
 
-
                         {piano.stato !== "ARCHIVIATO" &&
 
 
@@ -518,13 +611,41 @@ function PianoDetailPage(){
 
                                     <button
 
+                                        type="button"
+
                                         onClick={handleArchivia}
 
-                                        style={styles.button}
+                                        disabled={archiving}
+
+                                        style={
+
+                                            archiving
+
+                                                ?
+
+                                                styles.disabledButton
+
+                                                :
+
+                                                styles.button
+
+                                        }
 
                                     >
 
-                                        Archivia
+                                        {
+
+                                            archiving
+
+                                                ?
+
+                                                "Archiviazione..."
+
+                                                :
+
+                                                "Archivia"
+
+                                        }
 
                                     </button>
 
@@ -569,6 +690,37 @@ function PianoDetailPage(){
 
 
 
+                    {successMessage &&
+
+
+                        <div style={styles.successBox}>
+
+                            {successMessage}
+
+                        </div>
+
+
+                    }
+
+
+
+
+                    {errorMessage &&
+
+
+                        <div style={styles.errorBox}>
+
+                            {errorMessage}
+
+                        </div>
+
+
+                    }
+
+
+
+
+
 
 
 
@@ -593,8 +745,6 @@ function PianoDetailPage(){
                             value={piano.data}
 
                         />
-
-
 
 
 
@@ -659,8 +809,6 @@ function PianoDetailPage(){
 
 
 
-
-
                     <div>
 
 
@@ -675,16 +823,19 @@ function PianoDetailPage(){
                         <p>
 
                             {
-                                piano.descrizione ||
+
+                                piano.descrizione
+
+                                ||
 
                                 "Nessuna descrizione presente"
+
                             }
 
                         </p>
 
 
                     </div>
-
 
 
 
@@ -741,8 +892,6 @@ function PianoDetailPage(){
 
 
 
-
-
                 <PianoEsecuzioniSection
 
                     piano={piano}
@@ -784,11 +933,10 @@ function PianoDetailPage(){
 
 
 
+function Info({ label, value }) {
 
-function Info({label,value}){
 
-
-    return(
+    return (
 
 
         <div style={styles.box}>

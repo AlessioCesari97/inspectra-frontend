@@ -1,419 +1,329 @@
-import { useEffect, useState }
-    from "react";
-
+import { useEffect, useState } from "react";
 
 import {
     useParams,
     useNavigate,
     Link
-}
-    from "react-router-dom";
+} from "react-router-dom";
 
-
-import MainLayout
-    from "../layouts/MainLayout";
-
+import MainLayout from "../layouts/MainLayout";
 
 import {
-
     getIspezioneById,
-
     updateIspezione
-
-}
-    from "../api/api";
+} from "../api/api";
 
 
+function EditIspezionePage() {
 
 
+    const { id } = useParams();
+
+    const navigate = useNavigate();
 
 
-
-
-function EditIspezionePage(){
-
-
-
-    const { id } =
-        useParams();
-
-
-
-    const navigate =
-        useNavigate();
-
-
-
-
-
-    const [formData,setFormData] =
+    const [formData, setFormData] =
         useState(null);
 
 
+    const [errors, setErrors] =
+        useState({});
 
-    const [error,setError] =
+
+    const [error, setError] =
         useState("");
 
 
-
-    const [success,setSuccess] =
+    const [success, setSuccess] =
         useState("");
 
 
+    const [loading, setLoading] =
+        useState(false);
 
 
-
-
-
-
-
-    useEffect(()=>{
-
+    useEffect(() => {
 
         loadData();
 
-
-    },[id]);
-
+    }, [id]);
 
 
+    async function loadData() {
+
+        try {
+
+            setError("");
 
 
-
-
-
-
-
-    async function loadData(){
-
-
-
-        try{
-
-
-
-            const i =
-
+            const ispezione =
                 await getIspezioneById(id);
-
-
-
-
 
 
             setFormData({
 
-
-
                 titoloIspezione:
-                    i.titoloIspezione || "",
-
-
+                    ispezione.titoloIspezione || "",
 
                 stato:
-                    i.stato || "BOZZA",
-
-
+                    ispezione.stato || "BOZZA",
 
                 dataIspezione:
-                    i.dataIspezione || "",
-
-
-
-
+                    ispezione.dataIspezione || "",
 
 
                 operatoreProve:
-                    i.operatoreProve || "",
-
-
+                    ispezione.operatoreProve || "",
 
                 ingegnere:
-                    i.ingegnere || "",
-
-
+                    ispezione.ingegnere || "",
 
                 referenteConcessionaria:
-                    i.referenteConcessionaria || "",
-
-
-
-
+                    ispezione.referenteConcessionaria || "",
 
 
                 installazioneCantiere:
-                    i.installazioneCantiere || "",
-
-
+                    formatDateTimeLocal(
+                        ispezione.installazioneCantiere
+                    ),
 
                 inizioLavori:
-                    i.inizioLavori || "",
-
-
+                    formatDateTimeLocal(
+                        ispezione.inizioLavori
+                    ),
 
                 fineLavori:
-                    i.fineLavori || "",
-
-
-
-
+                    formatDateTimeLocal(
+                        ispezione.fineLavori
+                    ),
 
 
                 firmaOperatore:
-                    i.firmaOperatore || "",
-
-
+                    ispezione.firmaOperatore || "",
 
                 firmaIngegnere:
-                    i.firmaIngegnere || "",
-
-
+                    ispezione.firmaIngegnere || "",
 
                 firmaConcessionaria:
-                    i.firmaConcessionaria || "",
-
-
-
-
+                    ispezione.firmaConcessionaria || "",
 
 
                 createdBy:
-                    i.createdBy || "",
-
-
+                    ispezione.createdBy || "",
 
                 annotazioniAggiuntive:
-                    i.annotazioniAggiuntive || "",
-
-
+                    ispezione.annotazioniAggiuntive || "",
 
                 report:
-                    i.report || "",
-
-
-
-
-
-
-                asset:
-
-                    i.assetId
-
-                        ?
-
-                        {assetId:i.assetId}
-
-                        :
-
-                        null,
-
-
-
-
-
-
-
-                pianoIndagine:
-
-                    i.pianoId
-
-                        ?
-
-                        {pianoId:i.pianoId}
-
-                        :
-
-                        null
-
-
+                    ispezione.report || ""
 
             });
 
-
-
-
-        }catch(error){
-
-
+        } catch (error) {
 
             console.error(error);
 
-
-
             setError(
-
-                "Errore caricamento ispezione"
-
+                error.message ||
+                "Errore durante il caricamento dell'ispezione"
             );
 
-
-
         }
-
-
-
-    }      function handleChange(e){
-
-
-
-        const {
-
-            name,
-
-            value
-
-        } = e.target;
-
-
-
-
-
-
-
-        if(name === "stato"){
-
-
-
-            let aggiornata = {
-
-
-                ...formData,
-
-
-                stato:value
-
-
-            };
-
-
-
-
-
-
-
-            if(value === "BOZZA"){
-
-
-
-                aggiornata.installazioneCantiere = "";
-
-
-                aggiornata.inizioLavori = "";
-
-
-                aggiornata.fineLavori = "";
-
-
-
-                aggiornata.firmaOperatore = "";
-
-
-                aggiornata.firmaIngegnere = "";
-
-
-                aggiornata.firmaConcessionaria = "";
-
-
-
-                aggiornata.report = "";
-
-
-
-            }
-
-
-
-
-
-
-
-
-
-            if(value === "IN_CORSO"){
-
-
-
-                aggiornata.firmaOperatore = "";
-
-
-                aggiornata.firmaIngegnere = "";
-
-
-                aggiornata.firmaConcessionaria = "";
-
-
-
-                aggiornata.report = "";
-
-
-
-            }
-
-
-
-
-
-
-
-
-
-            setFormData(
-
-                aggiornata
-
-            );
-
-
-
-            return;
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-        setFormData({
-
-
-            ...formData,
-
-
-            [name]:
-
-            value
-
-
-        });
-
-
 
     }
 
 
+    function handleChange(event) {
+
+        const {
+            name,
+            value
+        } = event.target;
 
 
+        setFormData(prev => ({
+
+            ...prev,
+
+            [name]: value
+
+        }));
 
 
+        setErrors(prev => ({
+
+            ...prev,
+
+            [name]: ""
+
+        }));
 
 
+        setError("");
+
+        setSuccess("");
+
+    }
 
 
+    function handleStatoChange(event) {
+
+        const nuovoStato =
+            event.target.value;
 
 
-    async function handleSubmit(e){
+        setFormData(prev => ({
+
+            ...prev,
+
+            stato: nuovoStato
+
+        }));
 
 
+        setErrors({});
 
-        e.preventDefault();
+        setError("");
+
+        setSuccess("");
+
+    }
 
 
+    function validate() {
+
+        const newErrors = {};
+
+
+        if (
+            !formData
+                .titoloIspezione
+                .trim()
+        ) {
+
+            newErrors.titoloIspezione =
+                "Il titolo dell'ispezione è obbligatorio";
+
+        }
+
+
+        if (!formData.dataIspezione) {
+
+            newErrors.dataIspezione =
+                "La data dell'ispezione è obbligatoria";
+
+        }
+
+
+        if (
+            !formData
+                .createdBy
+                .trim()
+        ) {
+
+            newErrors.createdBy =
+                "Il creatore dell'ispezione è obbligatorio";
+
+        }
+
+
+        if (
+            formData.stato === "IN_CORSO"
+
+            ||
+
+            formData.stato === "COMPLETATA"
+
+            ||
+
+            formData.stato === "FIRMATA"
+        ) {
+
+            if (
+                !formData.installazioneCantiere
+            ) {
+
+                newErrors.installazioneCantiere =
+                    "La data e l'ora di installazione del cantiere sono obbligatorie";
+
+            }
+
+
+            if (!formData.inizioLavori) {
+
+                newErrors.inizioLavori =
+                    "La data e l'ora di inizio lavori sono obbligatorie";
+
+            }
+
+        }
+
+
+        if (
+            formData.stato === "COMPLETATA"
+
+            ||
+
+            formData.stato === "FIRMATA"
+        ) {
+
+            if (!formData.fineLavori) {
+
+                newErrors.fineLavori =
+                    "La data e l'ora di fine lavori sono obbligatorie";
+
+            }
+
+        }
+
+
+        if (
+            formData.stato ===
+            "FIRMATA"
+        ) {
+
+            if (
+                !formData.firmaOperatore.trim()
+            ) {
+
+                newErrors.firmaOperatore =
+                    "La firma dell'operatore è obbligatoria";
+
+            }
+
+
+            if (
+                !formData.firmaIngegnere.trim()
+            ) {
+
+                newErrors.firmaIngegnere =
+                    "La firma dell'ingegnere è obbligatoria";
+
+            }
+
+
+            if (
+                !formData
+                    .firmaConcessionaria
+                    .trim()
+            ) {
+
+                newErrors.firmaConcessionaria =
+                    "La firma della concessionaria è obbligatoria";
+
+            }
+
+        }
+
+
+        return newErrors;
+
+    }
+
+
+    async function handleSubmit(event) {
+
+        event.preventDefault();
 
 
         setError("");
@@ -421,245 +331,31 @@ function EditIspezionePage(){
         setSuccess("");
 
 
+        const newErrors =
+            validate();
 
 
+        setErrors(
+            newErrors
+        );
 
 
-
-        if(!formData.titoloIspezione.trim()){
-
-
+        if (
+            Object.keys(newErrors).length > 0
+        ) {
 
             setError(
-
-                "Inserisci il titolo ispezione"
-
+                "Controlla i campi obbligatori"
             );
 
-
-
             return;
-
 
         }
 
 
+        try {
 
-
-
-
-
-
-
-        if(
-
-
-            [
-
-                "IN_CORSO",
-
-                "COMPLETATA",
-
-                "FIRMATA",
-
-                "ARCHIVIATA"
-
-
-            ].includes(formData.stato)
-
-
-            &&
-
-
-            !formData.installazioneCantiere
-
-
-        ){
-
-
-
-            setError(
-
-                "Inserisci installazione cantiere"
-
-            );
-
-
-
-            return;
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-        if(
-
-
-            [
-
-                "IN_CORSO",
-
-                "COMPLETATA",
-
-                "FIRMATA",
-
-                "ARCHIVIATA"
-
-
-            ].includes(formData.stato)
-
-
-            &&
-
-
-            !formData.inizioLavori
-
-
-        ){
-
-
-
-            setError(
-
-                "Inserisci data inizio lavori"
-
-            );
-
-
-
-            return;
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-        if(
-
-
-            [
-
-                "COMPLETATA",
-
-                "FIRMATA",
-
-                "ARCHIVIATA"
-
-
-            ].includes(formData.stato)
-
-
-            &&
-
-
-            !formData.fineLavori
-
-
-        ){
-
-
-
-            setError(
-
-                "Inserisci data fine lavori"
-
-            );
-
-
-
-            return;
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-        if(
-
-
-            [
-
-                "FIRMATA",
-
-                "ARCHIVIATA"
-
-
-            ].includes(formData.stato)
-
-
-            &&
-
-
-            (
-
-                !formData.firmaOperatore
-
-                ||
-
-                !formData.firmaIngegnere
-
-                ||
-
-                !formData.firmaConcessionaria
-
-
-            )
-
-
-        ){
-
-
-
-            setError(
-
-                "Inserisci tutte le firme richieste"
-
-            );
-
-
-
-            return;
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-        try{
-
+            setLoading(true);
 
 
             await updateIspezione(
@@ -671,184 +367,239 @@ function EditIspezionePage(){
             );
 
 
-
-
-
-
-
-
             setSuccess(
-
-                "Ispezione salvata correttamente"
-
+                "Ispezione modificata correttamente"
             );
 
 
-
-
-
-
-
-
-            setTimeout(()=>{
-
-
+            setTimeout(() => {
 
                 navigate(
-
                     `/ispezione/${id}`
-
                 );
 
+            }, 1000);
 
-
-            },1000);
-
-
-
-
-
-
-
-
-        }catch(error){
-
-
+        } catch (error) {
 
             console.error(error);
 
 
-
             setError(
 
-                "Errore durante il salvataggio"
+                error.message
+
+                ||
+
+                "Errore durante la modifica dell'ispezione"
 
             );
 
+        } finally {
 
+            setLoading(false);
 
         }
 
-
-
     }
 
 
+    if (!formData) {
 
-
-
-
-
-
-
-
-
-    if(!formData){
-
-
-
-        return(
-
+        return (
 
             <MainLayout>
 
+                <div style={styles.loading}>
 
-                Caricamento...
+                    {
+                        error ||
+                        "Caricamento..."
+                    }
 
+                </div>
 
             </MainLayout>
 
-
         );
-
-
 
     }
 
 
+    const stato =
+        formData.stato;
 
 
+    const isBozza =
+        stato === "BOZZA";
 
 
+    const isInCorso =
+        stato === "IN_CORSO";
 
 
+    const isCompletata =
+        stato === "COMPLETATA";
 
 
+    const isFirmata =
+        stato === "FIRMATA";
+
+
+    const isArchiviata =
+        stato === "ARCHIVIATA";
 
 
     const mostraLavori =
 
+        isInCorso
 
-        [
+        ||
 
-            "IN_CORSO",
+        isCompletata
 
-            "COMPLETATA",
+        ||
 
-            "FIRMATA",
+        isFirmata
 
-            "ARCHIVIATA"
+        ||
 
-
-        ].includes(formData.stato);
-
-
-
-
-
-
-
+        isArchiviata;
 
 
     const mostraFirme =
 
+        isCompletata
 
-        [
+        ||
 
-            "COMPLETATA",
+        isFirmata
 
-            "FIRMATA",
+        ||
 
-            "ARCHIVIATA"
-
-
-        ].includes(formData.stato);
-
-
-
-
-
-
-
+        isArchiviata;
 
 
     const mostraReport =
 
+        isFirmata
 
-        [
+        ||
 
-            "FIRMATA",
-
-            "ARCHIVIATA"
-
-
-        ].includes(formData.stato);     return(
+        isArchiviata;
 
 
+    /*
+     * Una Ispezione FIRMATA consente
+     * solo modifica report e archiviazione.
+     *
+     * Una ARCHIVIATA è completamente bloccata.
+     */
+
+    const bloccaDati =
+        isFirmata || isArchiviata;
+
+
+    const bloccaReport =
+        isArchiviata;
+
+
+    function getStatiDisponibili() {
+
+        if (isBozza) {
+
+            return [
+
+                {
+                    value: "BOZZA",
+                    label: "Bozza"
+                },
+
+                {
+                    value: "IN_CORSO",
+                    label: "In corso"
+                }
+
+            ];
+
+        }
+
+
+        if (isInCorso) {
+
+            return [
+
+                {
+                    value: "IN_CORSO",
+                    label: "In corso"
+                },
+
+                {
+                    value: "COMPLETATA",
+                    label: "Completata"
+                }
+
+            ];
+
+        }
+
+
+        if (isCompletata) {
+
+            return [
+
+                {
+                    value: "COMPLETATA",
+                    label: "Completata"
+                },
+
+                {
+                    value: "FIRMATA",
+                    label: "Firmata"
+                }
+
+            ];
+
+        }
+
+
+        if (isFirmata) {
+
+            return [
+
+                {
+                    value: "FIRMATA",
+                    label: "Firmata"
+                },
+
+                {
+                    value: "ARCHIVIATA",
+                    label: "Archiviata"
+                }
+
+            ];
+
+        }
+
+
+        return [
+
+            {
+                value: "ARCHIVIATA",
+                label: "Archiviata"
+            }
+
+        ];
+
+    }
+
+
+    return (
 
         <MainLayout>
 
 
-
-
-
             <div style={styles.container}>
-
-
-
-
-
-
 
 
                 <Link
@@ -859,19 +610,9 @@ function EditIspezionePage(){
 
                 >
 
-
                     ← Torna all'ispezione
 
-
                 </Link>
-
-
-
-
-
-
-
-
 
 
                 <form
@@ -883,759 +624,701 @@ function EditIspezionePage(){
                 >
 
 
-
-
-
-
-
                     <div>
-
 
 
                         <h1 style={styles.title}>
 
-
                             Modifica Ispezione
-
 
                         </h1>
 
 
-
-
-
-
                         <p style={styles.subtitle}>
 
-
-                            Aggiorna informazioni e stato dell'ispezione
-
+                            Aggiorna le informazioni e lo stato dell'ispezione.
 
                         </p>
 
 
-
-
                     </div>
-
-
-
-
-
-
-
-
 
 
                     {
 
                         success &&
 
-
                         <div style={styles.success}>
-
 
                             {success}
 
-
                         </div>
 
-
                     }
-
-
-
-
-
-
-
 
 
                     {
 
                         error &&
 
-
                         <div style={styles.error}>
-
 
                             {error}
 
-
                         </div>
-
 
                     }
 
 
+                    {
+
+                        isArchiviata &&
+
+                        <div style={styles.lockedBox}>
+
+                            L'ispezione è archiviata e non può più essere modificata.
+
+                        </div>
+
+                    }
 
 
+                    {
+
+                        isFirmata &&
+
+                        <div style={styles.infoBox}>
+
+                            L'ispezione è firmata.
+                            Puoi modificare solamente il report oppure archiviarla.
+
+                        </div>
+
+                    }
 
 
-
-
-
-
-
-
-                    <h3 style={styles.sectionTitle}>
-
+                    <SectionTitle>
 
                         Informazioni principali
 
-
-                    </h3>
-
-
-
-
-
-
-
-
+                    </SectionTitle>
 
 
                     <div style={styles.grid}>
 
 
-
-
-
-
-
-
-
                         <div style={styles.group}>
-
 
 
                             <label style={styles.label}>
 
-                                Stato
+                                Stato *
 
                             </label>
 
 
-
-
-
-
-
                             <select
-
 
                                 name="stato"
 
+                                value={
+                                    formData.stato
+                                }
 
-                                value={formData.stato}
-
-
-                                onChange={handleChange}
-
+                                onChange={
+                                    handleStatoChange
+                                }
 
                                 style={styles.input}
 
+                                disabled={isArchiviata}
 
                             >
 
+                                {
 
+                                    getStatiDisponibili()
+                                        .map(option => (
 
-                                <option value="BOZZA">
+                                            <option
 
-                                    Bozza
+                                                key={option.value}
 
-                                </option>
+                                                value={option.value}
 
+                                            >
 
+                                                {option.label}
 
-                                <option value="IN_CORSO">
+                                            </option>
 
-                                    In corso
+                                        ))
 
-                                </option>
-
-
-
-
-                                <option value="COMPLETATA">
-
-                                    Completata
-
-                                </option>
-
-
-
-
-                                <option value="FIRMATA">
-
-                                    Firmata
-
-                                </option>
-
-
-
-
-                                <option value="ARCHIVIATA">
-
-                                    Archiviata
-
-                                </option>
-
-
-
+                                }
 
                             </select>
-
-
-
-
 
 
                         </div>
 
 
+                        <InputField
 
-
-
-
-
-
-
-                        <Input
-
-                            label="Titolo"
+                            label="Titolo ispezione *"
 
                             name="titoloIspezione"
 
-                            value={formData.titoloIspezione}
+                            value={
+                                formData.titoloIspezione
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            error={
+                                errors.titoloIspezione
+                            }
+
+                            disabled={bloccaDati}
 
                         />
 
 
+                        <InputField
 
-
-
-
-
-
-                        <Input
-
-                            label="Data"
+                            label="Data ispezione *"
 
                             name="dataIspezione"
 
                             type="date"
 
-                            value={formData.dataIspezione}
+                            value={
+                                formData.dataIspezione
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            error={
+                                errors.dataIspezione
+                            }
+
+                            disabled={bloccaDati}
 
                         />
 
 
+                        <InputField
 
-
-
-
-
-
-                        <Input
-
-                            label="Creato da"
+                            label="Creato da *"
 
                             name="createdBy"
 
-                            value={formData.createdBy}
+                            value={
+                                formData.createdBy
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            error={
+                                errors.createdBy
+                            }
+
+                            disabled={bloccaDati}
 
                         />
-
-
-
-
-
-
 
 
                     </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-                    <h3 style={styles.sectionTitle}>
-
+                    <SectionTitle>
 
                         Personale
 
-
-                    </h3>
-
-
-
-
-
-
-
-
+                    </SectionTitle>
 
 
                     <div style={styles.grid}>
 
 
-
-
-
-
-
-                        <Input
+                        <InputField
 
                             label="Operatore prove"
 
                             name="operatoreProve"
 
-                            value={formData.operatoreProve}
+                            value={
+                                formData.operatoreProve
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            disabled={bloccaDati}
 
                         />
 
 
-
-
-
-
-
-
-                        <Input
+                        <InputField
 
                             label="Ingegnere"
 
                             name="ingegnere"
 
-                            value={formData.ingegnere}
+                            value={
+                                formData.ingegnere
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            disabled={bloccaDati}
 
                         />
 
 
-
-
-
-
-
-
-                        <Input
+                        <InputField
 
                             label="Referente concessionaria"
 
                             name="referenteConcessionaria"
 
-                            value={formData.referenteConcessionaria}
+                            value={
+                                formData.referenteConcessionaria
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            disabled={bloccaDati}
 
                         />
 
 
-
-
-
-
-
-
-                    </div>                     {
-
-
-                    mostraLavori &&
-
-
-                    <>
-
-
-
-                        <h3 style={styles.sectionTitle}>
-
-                            Attività operative
-
-                        </h3>
-
-
-
-
-
-
-                        <div style={styles.grid}>
-
-
-
-
-
-                            <Input
-
-                                label="Installazione cantiere"
-
-                                type="datetime-local"
-
-                                name="installazioneCantiere"
-
-                                value={formData.installazioneCantiere}
-
-                                onChange={handleChange}
-
-                            />
-
-
-
-
-
-
-                            <Input
-
-                                label="Inizio lavori"
-
-                                type="datetime-local"
-
-                                name="inizioLavori"
-
-                                value={formData.inizioLavori}
-
-                                onChange={handleChange}
-
-                            />
-
-
-
-
-
-
-
-                            <Input
-
-                                label="Fine lavori"
-
-                                type="datetime-local"
-
-                                name="fineLavori"
-
-                                value={formData.fineLavori}
-
-                                onChange={handleChange}
-
-                            />
-
-
-
-
-
-
-                        </div>
-
-
-
-                    </>
-
-
-                }
-
-
-
-
-
-
-
+                    </div>
 
 
                     {
 
-
-                        mostraFirme &&
-
+                        mostraLavori &&
 
                         <>
 
 
+                            <SectionTitle>
 
+                                Attività operative
 
-                            <h3 style={styles.sectionTitle}>
-
-                                Firme
-
-                            </h3>
-
-
-
-
-
+                            </SectionTitle>
 
 
                             <div style={styles.grid}>
 
 
+                                <InputField
 
+                                    label="Installazione cantiere *"
 
+                                    name="installazioneCantiere"
 
+                                    type="datetime-local"
 
-                                <Input
+                                    value={
+                                        formData.installazioneCantiere
+                                    }
 
-                                    label="Firma operatore"
+                                    onChange={
+                                        handleChange
+                                    }
 
-                                    name="firmaOperatore"
+                                    error={
+                                        errors.installazioneCantiere
+                                    }
 
-                                    value={formData.firmaOperatore}
-
-                                    onChange={handleChange}
-
-                                />
-
-
-
-
-
-
-                                <Input
-
-                                    label="Firma ingegnere"
-
-                                    name="firmaIngegnere"
-
-                                    value={formData.firmaIngegnere}
-
-                                    onChange={handleChange}
+                                    disabled={bloccaDati}
 
                                 />
 
 
+                                <InputField
 
+                                    label="Inizio lavori *"
 
+                                    name="inizioLavori"
 
+                                    type="datetime-local"
 
+                                    value={
+                                        formData.inizioLavori
+                                    }
 
-                                <Input
+                                    onChange={
+                                        handleChange
+                                    }
 
-                                    label="Firma concessionaria"
+                                    error={
+                                        errors.inizioLavori
+                                    }
 
-                                    name="firmaConcessionaria"
-
-                                    value={formData.firmaConcessionaria}
-
-                                    onChange={handleChange}
+                                    disabled={bloccaDati}
 
                                 />
 
 
+                                <InputField
 
+                                    label={
 
+                                        isInCorso
+
+                                            ? "Fine lavori"
+
+                                            : "Fine lavori *"
+
+                                    }
+
+                                    name="fineLavori"
+
+                                    type="datetime-local"
+
+                                    value={
+                                        formData.fineLavori
+                                    }
+
+                                    onChange={
+                                        handleChange
+                                    }
+
+                                    error={
+                                        errors.fineLavori
+                                    }
+
+                                    disabled={bloccaDati}
+
+                                />
 
 
                             </div>
 
 
-
                         </>
 
-
                     }
-
-
-
-
-
-
-
-
 
 
                     {
 
+                        mostraFirme &&
 
-                        mostraReport &&
-
-
-                        <div style={styles.group}>
+                        <>
 
 
+                            <SectionTitle>
+
+                                Firme
+
+                            </SectionTitle>
 
 
-                            <label style={styles.label}>
-
-                                Report
-
-                            </label>
+                            <div style={styles.grid}>
 
 
+                                <InputField
+
+                                    label={
+
+                                        isCompletata
+
+                                            ? "Firma operatore"
+
+                                            : "Firma operatore *"
+
+                                    }
+
+                                    name="firmaOperatore"
+
+                                    value={
+                                        formData.firmaOperatore
+                                    }
+
+                                    onChange={
+                                        handleChange
+                                    }
+
+                                    error={
+                                        errors.firmaOperatore
+                                    }
+
+                                    disabled={bloccaDati}
+
+                                />
 
 
+                                <InputField
+
+                                    label={
+
+                                        isCompletata
+
+                                            ? "Firma ingegnere"
+
+                                            : "Firma ingegnere *"
+
+                                    }
+
+                                    name="firmaIngegnere"
+
+                                    value={
+                                        formData.firmaIngegnere
+                                    }
+
+                                    onChange={
+                                        handleChange
+                                    }
+
+                                    error={
+                                        errors.firmaIngegnere
+                                    }
+
+                                    disabled={bloccaDati}
+
+                                />
 
 
-                            <textarea
+                                <InputField
 
-                                name="report"
+                                    label={
 
-                                value={formData.report}
+                                        isCompletata
 
-                                onChange={handleChange}
+                                            ? "Firma concessionaria"
 
-                                style={styles.textarea}
+                                            : "Firma concessionaria *"
 
-                            />
+                                    }
+
+                                    name="firmaConcessionaria"
+
+                                    value={
+                                        formData.firmaConcessionaria
+                                    }
+
+                                    onChange={
+                                        handleChange
+                                    }
+
+                                    error={
+                                        errors.firmaConcessionaria
+                                    }
+
+                                    disabled={bloccaDati}
+
+                                />
 
 
+                            </div>
 
 
-
-                        </div>
-
+                        </>
 
                     }
 
 
+                    {
+
+                        mostraReport &&
+
+                        <>
 
 
+                            <SectionTitle>
+
+                                Report
+
+                            </SectionTitle>
 
 
+                            <div style={styles.group}>
 
 
+                                <label style={styles.label}>
+
+                                    Report
+
+                                </label>
+
+
+                                <textarea
+
+                                    name="report"
+
+                                    value={
+                                        formData.report
+                                    }
+
+                                    onChange={
+                                        handleChange
+                                    }
+
+                                    style={styles.textarea}
+
+                                    disabled={
+                                        bloccaReport
+                                    }
+
+                                />
+
+
+                            </div>
+
+
+                        </>
+
+                    }
+
+
+                    <SectionTitle>
+
+                        Annotazioni
+
+                    </SectionTitle>
 
 
                     <div style={styles.group}>
 
 
-
                         <label style={styles.label}>
 
-                            Annotazioni
+                            Annotazioni aggiuntive
 
                         </label>
-
-
-
-
 
 
                         <textarea
 
                             name="annotazioniAggiuntive"
 
-                            value={formData.annotazioniAggiuntive}
+                            value={
+                                formData.annotazioniAggiuntive
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                             style={styles.textarea}
 
+                            disabled={bloccaDati}
+
                         />
-
-
-
 
 
                     </div>
 
 
+                    {
 
+                        !isArchiviata &&
 
+                        <button
 
+                            type="submit"
 
+                            style={styles.button}
 
+                            disabled={loading}
 
+                        >
 
+                            {
 
-                    <button
+                                loading
 
-                        style={styles.button}
+                                    ? "Salvataggio..."
 
-                    >
+                                    : isFirmata
 
+                                        ? "Salva report / Archivia"
 
-                        Salva Modifiche
+                                        : "Salva Modifiche"
 
+                            }
 
-                    </button>
+                        </button>
 
-
-
-
-
-
+                    }
 
 
                 </form>
 
 
-
-
-
-
             </div>
-
-
-
 
 
         </MainLayout>
 
-
-
     );
-
-
 
 }
 
 
+function SectionTitle({
+                          children
+                      }) {
+
+    return (
+
+        <div style={styles.sectionHeader}>
+
+            <h3 style={styles.sectionTitle}>
+
+                {children}
+
+            </h3>
+
+        </div>
+
+    );
+
+}
 
 
+function InputField({
 
+                        label,
 
+                        name,
 
+                        value,
 
+                        onChange,
 
-function Input({
+                        type = "text",
 
-                   label,
+                        error,
 
-                   name,
+                        disabled = false
 
-                   value,
+                    }) {
 
-                   onChange,
-
-                   type="text"
-
-               }){
-
-
-    return(
-
+    return (
 
         <div style={styles.group}>
 
 
-
-
             <label style={styles.label}>
-
 
                 {label}
 
-
             </label>
-
-
-
-
 
 
             <input
@@ -1648,326 +1331,361 @@ function Input({
 
                 onChange={onChange}
 
-                style={styles.input}
+                disabled={disabled}
+
+                style={{
+
+                    ...styles.input,
+
+                    ...(error
+                        ? styles.inputError
+                        : {}),
+
+                    ...(disabled
+                        ? styles.disabledInput
+                        : {})
+
+                }}
 
             />
 
 
+            {
 
+                error &&
+
+                <span style={styles.fieldError}>
+
+                    {error}
+
+                </span>
+
+            }
 
 
         </div>
 
-
     );
-
 
 }
 
 
+function formatDateTimeLocal(value) {
 
+    if (!value) {
 
+        return "";
 
+    }
 
+    return value.substring(0, 16);
 
-
+}
 
 
 const styles = {
 
 
+    container: {
 
+        maxWidth: "900px",
 
-    container:{
+        margin: "0 auto",
 
-        maxWidth:"900px",
+        display: "flex",
 
-        margin:"0 auto",
+        flexDirection: "column",
 
-        display:"flex",
+        gap: "18px",
 
-        flexDirection:"column",
-
-        gap:"18px",
-
-        paddingBottom:"120px"
+        paddingBottom: "120px"
 
     },
 
 
+    backButton: {
 
+        width: "fit-content",
 
+        background: "#ffffff",
 
+        color: "#1e293b",
 
+        padding: "10px 14px",
 
-    backButton:{
+        borderRadius: "10px",
 
-        width:"fit-content",
+        border: "1px solid #e2e8f0",
 
-        background:"#ffffff",
+        textDecoration: "none",
 
-        color:"#1e293b",
-
-        padding:"10px 14px",
-
-        borderRadius:"10px",
-
-        border:"1px solid #e2e8f0",
-
-        textDecoration:"none",
-
-        fontWeight:"700"
+        fontWeight: "700"
 
     },
 
 
+    card: {
 
+        background: "#ffffff",
 
+        padding: "25px",
 
+        borderRadius: "18px",
 
-
-
-    card:{
-
-        background:"#ffffff",
-
-        padding:"25px",
-
-        borderRadius:"18px",
-
-        border:"1px solid #e2e8f0",
+        border: "1px solid #e2e8f0",
 
         boxShadow:
             "0 4px 12px rgba(15,23,42,0.05)",
 
-        display:"flex",
+        display: "flex",
 
-        flexDirection:"column",
+        flexDirection: "column",
 
-        gap:"20px"
-
-    },
-
-
-
-
-
-
-
-
-    title:{
-
-        margin:0,
-
-        fontSize:"32px",
-
-        color:"#1e293b",
-
-        fontWeight:"700"
+        gap: "20px"
 
     },
 
 
+    title: {
 
+        margin: 0,
 
+        fontSize: "32px",
 
+        color: "#1e293b",
 
-
-    subtitle:{
-
-        margin:0,
-
-        color:"#64748b",
-
-        fontSize:"14px"
+        fontWeight: "700"
 
     },
 
 
+    subtitle: {
 
+        marginTop: "6px",
 
+        marginBottom: 0,
 
+        color: "#64748b",
 
-
-
-    sectionTitle:{
-
-        margin:"10px 0 0",
-
-        color:"#1e293b"
+        fontSize: "14px"
 
     },
 
 
+    sectionHeader: {
+
+        borderBottom:
+            "1px solid #e2e8f0",
+
+        paddingBottom: "8px",
+
+        marginTop: "4px"
+
+    },
 
 
+    sectionTitle: {
+
+        margin: 0,
+
+        color: "#1e293b",
+
+        fontSize: "17px"
+
+    },
 
 
+    grid: {
 
-
-    grid:{
-
-        display:"grid",
+        display: "grid",
 
         gridTemplateColumns:
             "repeat(auto-fit,minmax(250px,1fr))",
 
-        gap:"16px"
+        gap: "16px"
 
     },
 
 
+    group: {
 
+        display: "flex",
 
+        flexDirection: "column",
 
-
-
-
-    group:{
-
-        display:"flex",
-
-        flexDirection:"column",
-
-        gap:"8px"
+        gap: "8px"
 
     },
 
 
+    label: {
 
+        fontWeight: "700",
 
+        color: "#475569",
 
-
-
-
-    label:{
-
-        fontWeight:"700",
-
-        color:"#475569",
-
-        fontSize:"14px"
+        fontSize: "14px"
 
     },
 
 
+    input: {
 
+        height: "46px",
 
+        padding: "0 12px",
 
+        borderRadius: "10px",
 
+        border: "1px solid #cbd5e1",
 
+        outline: "none",
 
-    input:{
+        boxSizing: "border-box",
 
-        height:"46px",
-
-        padding:"0 12px",
-
-        borderRadius:"10px",
-
-        border:"1px solid #cbd5e1",
-
-        outline:"none"
+        width: "100%"
 
     },
 
 
+    inputError: {
 
-
-
-
-
-
-    textarea:{
-
-        minHeight:"100px",
-
-        padding:"12px",
-
-        borderRadius:"10px",
-
-        border:"1px solid #cbd5e1",
-
-        resize:"vertical"
+        border: "1px solid #dc2626"
 
     },
 
 
+    disabledInput: {
 
+        background: "#f8fafc",
 
+        color: "#64748b",
 
-
-
-
-    button:{
-
-        height:"50px",
-
-        borderRadius:"10px",
-
-        border:"none",
-
-        background:"#1e293b",
-
-        color:"#ffffff",
-
-        fontWeight:"700",
-
-        cursor:"pointer",
-
-        fontSize:"15px"
+        cursor: "not-allowed"
 
     },
 
 
+    textarea: {
 
+        minHeight: "110px",
 
+        padding: "12px",
 
+        borderRadius: "10px",
 
+        border: "1px solid #cbd5e1",
 
-    success:{
+        resize: "vertical",
 
-        background:"#dcfce7",
+        boxSizing: "border-box",
 
-        color:"#166534",
-
-        padding:"12px",
-
-        borderRadius:"10px",
-
-        fontWeight:"700"
+        width: "100%"
 
     },
 
 
+    button: {
+
+        height: "50px",
+
+        borderRadius: "10px",
+
+        border: "none",
+
+        background: "#1e293b",
+
+        color: "#ffffff",
+
+        fontWeight: "700",
+
+        cursor: "pointer",
+
+        fontSize: "15px"
+
+    },
 
 
+    success: {
+
+        background: "#dcfce7",
+
+        color: "#166534",
+
+        padding: "12px",
+
+        borderRadius: "10px",
+
+        fontWeight: "700"
+
+    },
 
 
+    error: {
+
+        background: "#fee2e2",
+
+        color: "#991b1b",
+
+        padding: "12px",
+
+        borderRadius: "10px",
+
+        fontWeight: "700"
+
+    },
 
 
-    error:{
+    infoBox: {
 
-        background:"#fee2e2",
+        background: "#eff6ff",
 
-        color:"#991b1b",
+        color: "#1e40af",
 
-        padding:"12px",
+        padding: "12px",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
-        fontWeight:"700"
+        fontWeight: "600"
+
+    },
+
+
+    lockedBox: {
+
+        background: "#f1f5f9",
+
+        color: "#475569",
+
+        padding: "12px",
+
+        borderRadius: "10px",
+
+        fontWeight: "600"
+
+    },
+
+
+    fieldError: {
+
+        color: "#dc2626",
+
+        fontSize: "13px",
+
+        fontWeight: "600"
+
+    },
+
+
+    loading: {
+
+        padding: "30px",
+
+        color: "#64748b"
 
     }
 
-
-
 };
-
-
-
-
-
 
 
 export default EditIspezionePage;

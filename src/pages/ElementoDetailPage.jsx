@@ -23,6 +23,7 @@ import {
 
 
 
+
 const styles = {
 
 
@@ -261,9 +262,172 @@ const styles = {
 
         fontWeight:"700"
 
+    },
+
+
+
+    // =========================
+    // IMMAGINE
+    // =========================
+
+    imageContainer: {
+
+        background:"#f8fafc",
+
+        border:"1px solid #e2e8f0",
+
+        borderRadius:"14px",
+
+        padding:"14px",
+
+        display:"flex",
+
+        flexDirection:"column",
+
+        gap:"10px"
+
+    },
+
+
+
+    elementImage: {
+
+        width:"100%",
+
+        maxWidth:"500px",
+
+        maxHeight:"340px",
+
+        objectFit:"cover",
+
+        borderRadius:"12px",
+
+        cursor:"pointer",
+
+        border:"1px solid #e2e8f0"
+
+    },
+
+
+
+    imageHint: {
+
+        margin:0,
+
+        color:"#64748b",
+
+        fontSize:"13px"
+
+    },
+
+
+
+    noImage: {
+
+        margin:0,
+
+        color:"#64748b",
+
+        fontSize:"14px"
+
+    },
+
+
+
+    // =========================
+    // VISUALIZZAZIONE FULLSCREEN
+    // =========================
+
+    imageOverlay: {
+
+        position:"fixed",
+
+        top:0,
+
+        left:0,
+
+        width:"100vw",
+
+        height:"100vh",
+
+        background:"rgba(0,0,0,0.92)",
+
+        display:"flex",
+
+        justifyContent:"center",
+
+        alignItems:"center",
+
+        padding:"20px",
+
+        boxSizing:"border-box",
+
+        zIndex:9999,
+
+        cursor:"pointer"
+
+    },
+
+
+
+    fullscreenImage: {
+
+        maxWidth:"95vw",
+
+        maxHeight:"90vh",
+
+        objectFit:"contain",
+
+        borderRadius:"8px",
+
+        cursor:"default"
+
+    },
+
+
+
+    closeButton: {
+
+        position:"fixed",
+
+        top:"18px",
+
+        right:"22px",
+
+        width:"44px",
+
+        height:"44px",
+
+        borderRadius:"50%",
+
+        border:"1px solid rgba(255,255,255,0.4)",
+
+        background:"rgba(0,0,0,0.5)",
+
+        color:"#ffffff",
+
+        fontSize:"28px",
+
+        cursor:"pointer",
+
+        display:"flex",
+
+        justifyContent:"center",
+
+        alignItems:"center",
+
+        zIndex:10000
+
     }
 
 };
+
+
+
+
+
+
+
 function ElementoDetailPage(){
 
 
@@ -273,10 +437,13 @@ function ElementoDetailPage(){
 
 
 
-
     const [elemento,setElemento] =
         useState(null);
 
+
+
+    const [immagineAperta,setImmagineAperta] =
+        useState(false);
 
 
 
@@ -298,8 +465,6 @@ function ElementoDetailPage(){
 
 
 
-
-
     async function loadElemento(){
 
 
@@ -313,9 +478,7 @@ function ElementoDetailPage(){
 
 
 
-
             setElemento(data);
-
 
 
 
@@ -334,6 +497,30 @@ function ElementoDetailPage(){
     }
 
 
+
+
+
+
+
+    function apriImmagine(){
+
+
+        setImmagineAperta(true);
+
+
+    }
+
+
+
+
+
+    function chiudiImmagine(){
+
+
+        setImmagineAperta(false);
+
+
+    }
 
 
 
@@ -365,9 +552,6 @@ function ElementoDetailPage(){
 
 
     }
-
-
-
 
 
 
@@ -461,8 +645,6 @@ function ElementoDetailPage(){
 
 
 
-
-
                     <Link
 
 
@@ -475,9 +657,7 @@ function ElementoDetailPage(){
                     >
 
 
-
                         Modifica
-
 
 
                     </Link>
@@ -486,12 +666,7 @@ function ElementoDetailPage(){
 
 
 
-
-
                 </div>
-
-
-
 
 
 
@@ -508,10 +683,7 @@ function ElementoDetailPage(){
 
 
 
-
                     <Section title="Informazioni principali">
-
-
 
 
 
@@ -534,8 +706,6 @@ function ElementoDetailPage(){
 
 
 
-
-
                         <Info
 
 
@@ -546,8 +716,6 @@ function ElementoDetailPage(){
 
 
                         />
-
-
 
 
 
@@ -573,8 +741,6 @@ function ElementoDetailPage(){
 
 
 
-
-
                         <div style={styles.infoBox}>
 
 
@@ -592,9 +758,7 @@ function ElementoDetailPage(){
 
 
 
-
                             <div style={styles.value}>
-
 
 
 
@@ -611,13 +775,10 @@ function ElementoDetailPage(){
                                 >
 
 
-
                                     {elemento.nome}
 
 
-
                                 </Link>
-
 
 
 
@@ -628,11 +789,7 @@ function ElementoDetailPage(){
 
 
 
-
-
                         </div>
-
-
 
 
 
@@ -649,21 +806,11 @@ function ElementoDetailPage(){
 
 
 
-
-
-
-
-
-
                     <Section title="Descrizione">
 
 
 
-
-
                         <p style={styles.text}>
-
-
 
 
                             {
@@ -681,12 +828,7 @@ function ElementoDetailPage(){
                             }
 
 
-
-
-
                         </p>
-
-
 
 
 
@@ -700,6 +842,66 @@ function ElementoDetailPage(){
 
 
 
+                    <Section title="Immagine dell'elemento">
+
+
+
+                        {
+
+                            elemento.allegato?.url
+
+                                ?
+
+                                <div style={styles.imageContainer}>
+
+
+
+                                    <img
+
+                                        src={elemento.allegato.url}
+
+                                        alt={`Elemento ${elemento.codice}`}
+
+                                        style={styles.elementImage}
+
+                                        onClick={apriImmagine}
+
+                                    />
+
+
+
+                                    <p style={styles.imageHint}>
+
+
+                                        Tocca l'immagine per visualizzarla a schermo intero
+
+
+                                    </p>
+
+
+
+                                </div>
+
+
+                                :
+
+
+                                <p style={styles.noImage}>
+
+
+                                    Nessuna immagine presente
+
+
+                                </p>
+
+                        }
+
+
+
+                    </Section>
+
+
+
 
 
 
@@ -707,8 +909,6 @@ function ElementoDetailPage(){
 
 
                     <Section title="Posizione">
-
-
 
 
 
@@ -731,8 +931,6 @@ function ElementoDetailPage(){
 
 
 
-
-
                         <Info
 
 
@@ -748,54 +946,7 @@ function ElementoDetailPage(){
 
 
 
-
-
                     </Section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    <Section title="Foto">
-
-
-
-
-
-
-
-
-                        <Info
-
-
-                            label="Immagine"
-
-
-                            value={elemento.foto}
-
-
-                        />
-
-
-
-
-
-
-
-
-                    </Section>
-
-
-
-
 
 
 
@@ -814,8 +965,78 @@ function ElementoDetailPage(){
 
 
 
-        </MainLayout>
 
+
+            {
+
+                immagineAperta
+
+                &&
+
+                elemento.allegato?.url
+
+                &&
+
+
+                <div
+
+                    style={styles.imageOverlay}
+
+                    onClick={chiudiImmagine}
+
+                >
+
+
+
+                    <button
+
+                        type="button"
+
+                        style={styles.closeButton}
+
+                        onClick={chiudiImmagine}
+
+                        aria-label="Chiudi immagine"
+
+                    >
+
+
+                        ×
+
+
+                    </button>
+
+
+
+
+
+                    <img
+
+                        src={elemento.allegato.url}
+
+                        alt={`Elemento ${elemento.codice}`}
+
+                        style={styles.fullscreenImage}
+
+                        onClick={(event)=>
+
+                            event.stopPropagation()
+
+                        }
+
+                    />
+
+
+
+                </div>
+
+            }
+
+
+
+
+
+        </MainLayout>
 
 
 
@@ -824,9 +1045,6 @@ function ElementoDetailPage(){
 
 
 }
-
-
-
 
 
 
@@ -850,10 +1068,7 @@ function Section({
 
 
 
-
         <div style={styles.section}>
-
-
 
 
 
@@ -868,36 +1083,24 @@ function Section({
 
 
 
-
-
-
             <div style={styles.grid}>
 
 
-
                 {children}
-
 
 
             </div>
 
 
 
-
-
-
         </div>
-
 
 
     );
 
 
+
 }
-
-
-
-
 
 
 
@@ -921,10 +1124,7 @@ function Info({
 
 
 
-
         <div style={styles.infoBox}>
-
-
 
 
 
@@ -939,26 +1139,37 @@ function Info({
 
 
 
-
-
-
             <div style={styles.value}>
 
 
-                {value || "-"}
+                {
+
+                    value !== null
+
+                    &&
+
+                    value !== undefined
+
+                    &&
+
+                    value !== ""
+
+                        ?
+
+                        value
+
+                        :
+
+                        "-"
+
+                }
 
 
             </div>
 
 
 
-
-
-
-
         </div>
-
-
 
 
     );
@@ -966,10 +1177,6 @@ function Info({
 
 
 }
-
-
-
-
 
 
 

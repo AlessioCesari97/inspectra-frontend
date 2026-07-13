@@ -1,4 +1,4 @@
-import { useEffect, useState }
+import { useEffect, useRef, useState }
     from "react";
 
 
@@ -47,11 +47,20 @@ function EditElementoPage(){
 
 
 
+    const galleryInputRef =
+        useRef(null);
+
+
+
+    const cameraInputRef =
+        useRef(null);
+
+
+
 
 
     const [tipi,setTipi] =
         useState([]);
-
 
 
 
@@ -75,8 +84,6 @@ function EditElementoPage(){
 
             descrizione:"",
 
-            foto:"",
-
             latitudine:"",
 
             longitudine:"",
@@ -84,6 +91,31 @@ function EditElementoPage(){
             assetId:""
 
         });
+
+
+
+
+
+    // =========================
+    // IMMAGINE ESISTENTE
+    // =========================
+
+    const [immagineEsistente,setImmagineEsistente] =
+        useState("");
+
+
+
+    // =========================
+    // NUOVA IMMAGINE
+    // =========================
+
+    const [nuovaImmagine,setNuovaImmagine] =
+        useState(null);
+
+
+
+    const [anteprimaNuovaImmagine,setAnteprimaNuovaImmagine] =
+        useState("");
 
 
 
@@ -121,6 +153,38 @@ function EditElementoPage(){
 
 
     },[id]);
+
+
+
+
+
+    // =========================
+    // PULIZIA URL ANTEPRIMA
+    // =========================
+
+    useEffect(()=>{
+
+
+        return ()=>{
+
+
+            if(anteprimaNuovaImmagine){
+
+
+                URL.revokeObjectURL(
+
+                    anteprimaNuovaImmagine
+
+                );
+
+
+            }
+
+
+        };
+
+
+    },[anteprimaNuovaImmagine]);
 
 
 
@@ -180,16 +244,12 @@ function EditElementoPage(){
                     elemento.descrizione || "",
 
 
-                foto:
-                    elemento.foto || "",
-
-
                 latitudine:
-                    elemento.latitudine || "",
+                    elemento.latitudine ?? "",
 
 
                 longitudine:
-                    elemento.longitudine || "",
+                    elemento.longitudine ?? "",
 
 
                 assetId:
@@ -201,10 +261,27 @@ function EditElementoPage(){
 
 
 
+
+            setImmagineEsistente(
+
+                elemento.allegato?.url || ""
+
+            );
+
+
+
+
         }catch(error){
 
 
             console.error(error);
+
+
+            setServerError(
+
+                "❌ Impossibile caricare i dati dell'elemento"
+
+            );
 
 
         }
@@ -283,7 +360,20 @@ function EditElementoPage(){
 
 
 
-    }     async function aggiungiTipoElemento(){
+        setServerError("");
+
+
+    }
+
+
+
+
+
+
+
+
+
+    async function aggiungiTipoElemento(){
 
 
 
@@ -396,6 +486,227 @@ function EditElementoPage(){
 
 
 
+
+
+
+    // =========================
+    // SELEZIONE NUOVA IMMAGINE
+    // =========================
+
+    function handleImageChange(event){
+
+
+
+        const file =
+            event.target.files?.[0];
+
+
+
+        if(!file){
+
+
+            return;
+
+
+        }
+
+
+
+        setServerError("");
+
+
+
+
+
+        if(!file.type.startsWith("image/")){
+
+
+
+            setErrors({
+
+
+                ...errors,
+
+
+                immagine:
+
+                    "Il file selezionato deve essere un'immagine"
+
+
+            });
+
+
+
+            event.target.value = "";
+
+
+            return;
+
+
+        }
+
+
+
+
+
+        const maxSize =
+
+            10 * 1024 * 1024;
+
+
+
+        if(file.size > maxSize){
+
+
+
+            setErrors({
+
+
+                ...errors,
+
+
+                immagine:
+
+                    "L'immagine non può superare 10 MB"
+
+
+            });
+
+
+
+            event.target.value = "";
+
+
+            return;
+
+
+        }
+
+
+
+
+
+        if(anteprimaNuovaImmagine){
+
+
+            URL.revokeObjectURL(
+
+                anteprimaNuovaImmagine
+
+            );
+
+
+        }
+
+
+
+
+
+        const previewUrl =
+
+            URL.createObjectURL(file);
+
+
+
+
+
+        setNuovaImmagine(file);
+
+
+
+        setAnteprimaNuovaImmagine(
+
+            previewUrl
+
+        );
+
+
+
+        setErrors({
+
+
+            ...errors,
+
+
+            immagine:""
+
+
+        });
+
+
+    }
+
+
+
+
+
+
+
+
+
+    // =========================
+    // RIMUOVI NUOVA IMMAGINE
+    // =========================
+
+    function rimuoviNuovaImmagine(){
+
+
+
+        if(anteprimaNuovaImmagine){
+
+
+            URL.revokeObjectURL(
+
+                anteprimaNuovaImmagine
+
+            );
+
+
+        }
+
+
+
+        setNuovaImmagine(null);
+
+
+
+        setAnteprimaNuovaImmagine("");
+
+
+
+        setErrors({
+
+
+            ...errors,
+
+
+            immagine:""
+
+
+        });
+
+
+
+        if(galleryInputRef.current){
+
+
+            galleryInputRef.current.value = "";
+
+
+        }
+
+
+
+        if(cameraInputRef.current){
+
+
+            cameraInputRef.current.value = "";
+
+
+        }
+
+
+    }
 
 
 
@@ -521,11 +832,6 @@ function EditElementoPage(){
             formData.descrizione,
 
 
-            foto:
-
-            formData.foto,
-
-
 
             latitudine:
 
@@ -612,6 +918,12 @@ function EditElementoPage(){
             setLoading(true);
 
 
+            setSuccess("");
+
+
+            setServerError("");
+
+
 
 
 
@@ -622,7 +934,10 @@ function EditElementoPage(){
                 id,
 
 
-                body
+                body,
+
+
+                nuovaImmagine
 
 
             );
@@ -672,7 +987,11 @@ function EditElementoPage(){
 
 
 
-        }catch{
+        }catch(error){
+
+
+
+            console.error(error);
 
 
 
@@ -813,51 +1132,6 @@ function EditElementoPage(){
 
 
 
-                    {success &&
-
-
-                        <div style={styles.success}>
-
-
-                            {success}
-
-
-                        </div>
-
-
-                    }
-
-
-
-
-
-
-
-                    {serverError &&
-
-
-                        <div style={styles.serverError}>
-
-
-                            {serverError}
-
-
-                        </div>
-
-
-                    }
-
-
-
-
-
-
-
-
-
-
-
-
                     <h3 style={styles.sectionTitle}>
 
 
@@ -932,64 +1206,100 @@ function EditElementoPage(){
 
 
 
-                    </div>                      <div style={styles.group}>
-
-
-                    <label style={styles.label}>
-
-                        Tipo elemento *
-
-                    </label>
+                    </div>
 
 
 
-                    <select
-
-                        name="tipoElementoId"
-
-                        value={formData.tipoElementoId}
-
-                        onChange={handleChange}
-
-                        style={styles.input}
-
-                    >
-
-
-                        <option value="">
-
-                            Seleziona tipo
-
-                        </option>
 
 
 
-                        {tipi.map(t => (
 
 
-                            <option
 
-                                key={t.tipoElementoId}
-
-                                value={t.tipoElementoId}
-
-                            >
+                    <div style={styles.group}>
 
 
-                                {t.nome}
+                        <label style={styles.label}>
 
+                            Tipo elemento *
+
+                        </label>
+
+
+
+                        <select
+
+                            name="tipoElementoId"
+
+                            value={formData.tipoElementoId}
+
+                            onChange={handleChange}
+
+                            style={{
+
+                                ...styles.input,
+
+                                ...(errors.tipoElementoId
+
+                                    ? styles.inputError
+
+                                    : {})
+
+                            }}
+
+                        >
+
+
+                            <option value="">
+
+                                Seleziona tipo
 
                             </option>
 
 
-                        ))}
+
+                            {tipi.map(t => (
+
+
+                                <option
+
+                                    key={t.tipoElementoId}
+
+                                    value={t.tipoElementoId}
+
+                                >
+
+
+                                    {t.nome}
+
+
+                                </option>
+
+
+                            ))}
 
 
 
-                    </select>
+                        </select>
 
 
-                </div>
+
+                        {errors.tipoElementoId &&
+
+
+                            <p style={styles.error}>
+
+
+                                {errors.tipoElementoId}
+
+
+                            </p>
+
+
+                        }
+
+
+                    </div>
 
 
 
@@ -1141,17 +1451,256 @@ function EditElementoPage(){
 
 
 
-                    <Input
 
-                        label="Foto"
 
-                        name="foto"
+                    <h3 style={styles.sectionTitle}>
 
-                        value={formData.foto}
 
-                        onChange={handleChange}
+                        Immagine dell'elemento
+
+
+                    </h3>
+
+
+
+                    <p style={styles.sectionDescription}>
+
+
+                        Mantieni l'immagine attuale oppure seleziona o scatta una nuova foto per sostituirla.
+
+
+                    </p>
+
+
+
+
+
+
+
+                    {immagineEsistente && !anteprimaNuovaImmagine &&
+
+
+                        <div style={styles.previewContainer}>
+
+
+
+                            <label style={styles.label}>
+
+
+                                Immagine attuale
+
+
+                            </label>
+
+
+
+                            <img
+
+                                src={immagineEsistente}
+
+                                alt="Immagine attuale dell'elemento"
+
+                                style={styles.previewImage}
+
+                            />
+
+
+                        </div>
+
+
+                    }
+
+
+
+
+
+
+
+                    <div style={styles.imageActions}>
+
+
+
+                        <button
+
+                            type="button"
+
+                            style={styles.imageButton}
+
+                            onClick={()=>
+
+                                galleryInputRef.current?.click()
+
+                            }
+
+                        >
+
+
+                            Seleziona nuova immagine
+
+
+                        </button>
+
+
+
+                        <button
+
+                            type="button"
+
+                            style={styles.imageButton}
+
+                            onClick={()=>
+
+                                cameraInputRef.current?.click()
+
+                            }
+
+                        >
+
+
+                            Scatta nuova foto
+
+
+                        </button>
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <input
+
+                        ref={galleryInputRef}
+
+                        type="file"
+
+                        accept="image/*"
+
+                        onChange={handleImageChange}
+
+                        style={styles.hiddenInput}
 
                     />
+
+
+
+                    <input
+
+                        ref={cameraInputRef}
+
+                        type="file"
+
+                        accept="image/*"
+
+                        capture="environment"
+
+                        onChange={handleImageChange}
+
+                        style={styles.hiddenInput}
+
+                    />
+
+
+
+
+
+
+
+                    {errors.immagine &&
+
+
+                        <p style={styles.error}>
+
+
+                            {errors.immagine}
+
+
+                        </p>
+
+
+                    }
+
+
+
+
+
+
+
+                    {nuovaImmagine &&
+
+
+                        <div style={styles.selectedFile}>
+
+
+                            Nuova immagine selezionata: {nuovaImmagine.name}
+
+
+                        </div>
+
+
+                    }
+
+
+
+
+
+
+
+                    {anteprimaNuovaImmagine &&
+
+
+                        <div style={styles.previewContainer}>
+
+
+
+                            <label style={styles.label}>
+
+
+                                Anteprima nuova immagine
+
+
+                            </label>
+
+
+
+                            <img
+
+                                src={anteprimaNuovaImmagine}
+
+                                alt="Anteprima nuova immagine"
+
+                                style={styles.previewImage}
+
+                            />
+
+
+
+                            <button
+
+                                type="button"
+
+                                onClick={rimuoviNuovaImmagine}
+
+                                style={styles.removeImageButton}
+
+                            >
+
+
+                                Annulla sostituzione immagine
+
+
+                            </button>
+
+
+
+                        </div>
+
+
+                    }
 
 
 
@@ -1240,6 +1789,46 @@ function EditElementoPage(){
 
 
                     </button>
+
+
+
+
+
+
+
+                    {success &&
+
+
+                        <div style={styles.success}>
+
+
+                            {success}
+
+
+                        </div>
+
+
+                    }
+
+
+
+
+
+
+
+                    {serverError &&
+
+
+                        <div style={styles.serverError}>
+
+
+                            {serverError}
+
+
+                        </div>
+
+
+                    }
 
 
 
@@ -1437,7 +2026,23 @@ const styles = {
 
     sectionTitle:{
 
-        color:"#1e293b"
+        color:"#1e293b",
+
+        margin:"10px 0 0"
+
+    },
+
+
+
+    sectionDescription:{
+
+        margin:"-10px 0 0",
+
+        color:"#64748b",
+
+        fontSize:"14px",
+
+        lineHeight:"1.5"
 
     },
 
@@ -1510,7 +2115,9 @@ const styles = {
 
         border:"1px solid #cbd5e1",
 
-        padding:"14px"
+        padding:"14px",
+
+        resize:"vertical"
 
     },
 
@@ -1518,7 +2125,11 @@ const styles = {
 
     error:{
 
-        color:"#dc2626"
+        color:"#dc2626",
+
+        fontSize:"13px",
+
+        margin:0
 
     },
 
@@ -1532,7 +2143,9 @@ const styles = {
 
         padding:"12px",
 
-        borderRadius:"10px"
+        borderRadius:"10px",
+
+        fontWeight:"600"
 
     },
 
@@ -1546,7 +2159,9 @@ const styles = {
 
         padding:"12px",
 
-        borderRadius:"10px"
+        borderRadius:"10px",
+
+        fontWeight:"600"
 
     },
 
@@ -1564,7 +2179,9 @@ const styles = {
 
         borderRadius:"10px",
 
-        fontWeight:"700"
+        fontWeight:"700",
+
+        cursor:"pointer"
 
     },
 
@@ -1580,7 +2197,130 @@ const styles = {
 
         border:"none",
 
-        borderRadius:"10px"
+        borderRadius:"10px",
+
+        cursor:"pointer",
+
+        fontWeight:"600"
+
+    },
+
+
+
+    imageActions:{
+
+        display:"grid",
+
+        gridTemplateColumns:
+            "repeat(auto-fit,minmax(220px,1fr))",
+
+        gap:"12px"
+
+    },
+
+
+
+    imageButton:{
+
+        minHeight:"48px",
+
+        background:"#ffffff",
+
+        color:"#1e293b",
+
+        border:"1px solid #cbd5e1",
+
+        borderRadius:"10px",
+
+        padding:"10px 14px",
+
+        cursor:"pointer",
+
+        fontWeight:"700"
+
+    },
+
+
+
+    hiddenInput:{
+
+        display:"none"
+
+    },
+
+
+
+    selectedFile:{
+
+        background:"#f8fafc",
+
+        border:"1px solid #e2e8f0",
+
+        borderRadius:"10px",
+
+        padding:"12px",
+
+        color:"#475569",
+
+        fontSize:"14px",
+
+        overflowWrap:"anywhere"
+
+    },
+
+
+
+    previewContainer:{
+
+        display:"flex",
+
+        flexDirection:"column",
+
+        gap:"12px",
+
+        padding:"14px",
+
+        background:"#f8fafc",
+
+        border:"1px solid #e2e8f0",
+
+        borderRadius:"14px"
+
+    },
+
+
+
+    previewImage:{
+
+        width:"100%",
+
+        maxHeight:"420px",
+
+        objectFit:"contain",
+
+        borderRadius:"10px",
+
+        background:"#e2e8f0"
+
+    },
+
+
+
+    removeImageButton:{
+
+        height:"44px",
+
+        background:"#ffffff",
+
+        color:"#b91c1c",
+
+        border:"1px solid #fecaca",
+
+        borderRadius:"10px",
+
+        cursor:"pointer",
+
+        fontWeight:"700"
 
     }
 

@@ -1,35 +1,55 @@
 import { defineConfig } from 'vite'
-
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 
 export default defineConfig({
 
-  plugins: [react()],
+  plugins: [
 
-  server: {
+    react(),
 
-    host: true,
+    VitePWA({
 
-    allowedHosts: [
-      'debating-grime-granular.ngrok-free.dev'
-    ],
+      registerType:"autoUpdate",
 
-    proxy: {
+      manifest:{
 
-      '/api': {
+        name:"Inspectra",
 
-        target: 'http://localhost:8081',
+        short_name:"Inspectra",
 
-        changeOrigin: true,
+        description:
+            "Gestione ispezioni infrastrutturali",
 
-        rewrite: (path) =>
-            path.replace(/^\/api/, '')
+        theme_color:"#1e293b",
+
+        background_color:"#ffffff",
+
+        display:"standalone",
+
+        start_url:"/",
+
+        icons:[
+
+          {
+            src:"/icons/icon-192.png",
+            sizes:"192x192",
+            type:"image/png"
+          },
+
+          {
+            src:"/icons/icon-512.png",
+            sizes:"512x512",
+            type:"image/png"
+          }
+
+        ]
 
       }
 
-    }
+    })
 
-  }
+  ]
 
 })

@@ -1,4 +1,4 @@
-import { useEffect, useState }
+import { useEffect, useRef, useState }
     from "react";
 
 
@@ -33,234 +33,384 @@ const styles = {
 
     container: {
 
-        maxWidth:"900px",
+        maxWidth: "900px",
 
-        margin:"0 auto",
+        margin: "0 auto",
 
-        display:"flex",
+        display: "flex",
 
-        flexDirection:"column",
+        flexDirection: "column",
 
-        gap:"18px",
+        gap: "18px",
 
-        paddingBottom:"120px"
+        paddingBottom: "120px"
+
     },
 
 
 
     backButton: {
 
-        width:"fit-content",
+        width: "fit-content",
 
-        backgroundColor:"#ffffff",
+        backgroundColor: "#ffffff",
 
-        color:"#1e293b",
+        color: "#1e293b",
 
-        padding:"10px 14px",
+        padding: "10px 14px",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
-        textDecoration:"none",
+        textDecoration: "none",
 
-        fontWeight:"600",
+        fontWeight: "600",
 
-        border:"1px solid #e2e8f0"
+        border: "1px solid #e2e8f0"
+
     },
 
 
 
     card: {
 
-        background:"#ffffff",
+        background: "#ffffff",
 
-        border:"1px solid #e2e8f0",
+        border: "1px solid #e2e8f0",
 
-        borderRadius:"18px",
+        borderRadius: "18px",
 
-        padding:"22px",
+        padding: "22px",
 
-        display:"flex",
+        display: "flex",
 
-        flexDirection:"column",
+        flexDirection: "column",
 
-        gap:"20px"
+        gap: "20px"
+
     },
 
 
 
     title: {
 
-        margin:0,
+        margin: 0,
 
-        color:"#1e293b"
+        color: "#1e293b"
+
     },
 
 
 
     subtitle: {
 
-        margin:0,
+        margin: 0,
 
-        color:"#64748b"
+        color: "#64748b"
+
     },
 
 
 
     sectionTitle: {
 
-        margin:"10px 0 0",
+        margin: "10px 0 0",
 
-        color:"#1e293b"
+        color: "#1e293b"
+
+    },
+
+
+
+    sectionDescription: {
+
+        margin: "-10px 0 0",
+
+        color: "#64748b",
+
+        fontSize: "14px",
+
+        lineHeight: "1.5"
+
     },
 
 
 
     grid: {
 
-        display:"grid",
+        display: "grid",
 
         gridTemplateColumns:
             "repeat(auto-fit,minmax(240px,1fr))",
 
-        gap:"18px"
+        gap: "18px"
+
     },
 
 
 
     group: {
 
-        display:"flex",
+        display: "flex",
 
-        flexDirection:"column",
+        flexDirection: "column",
 
-        gap:"8px"
+        gap: "8px"
+
     },
 
 
 
     label: {
 
-        fontSize:"13px",
+        fontSize: "13px",
 
-        fontWeight:"700",
+        fontWeight: "700",
 
-        color:"#475569"
+        color: "#475569"
+
     },
 
 
 
     input: {
 
-        height:"48px",
+        height: "48px",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
-        border:"1px solid #cbd5e1",
+        border: "1px solid #cbd5e1",
 
-        padding:"0 14px",
+        padding: "0 14px",
 
-        outline:"none"
+        outline: "none"
+
     },
 
 
 
     inputError: {
 
-        border:"1px solid #dc2626"
+        border: "1px solid #dc2626"
+
     },
 
 
 
     textarea: {
 
-        minHeight:"120px",
+        minHeight: "120px",
 
-        borderRadius:"12px",
+        borderRadius: "12px",
 
-        border:"1px solid #cbd5e1",
+        border: "1px solid #cbd5e1",
 
-        padding:"14px",
+        padding: "14px",
 
-        resize:"vertical"
+        resize: "vertical"
+
     },
 
 
 
     error: {
 
-        color:"#dc2626",
+        color: "#dc2626",
 
-        fontSize:"13px",
+        fontSize: "13px",
 
-        margin:0
+        margin: 0
+
     },
 
 
 
     success: {
 
-        background:"#dcfce7",
+        background: "#dcfce7",
 
-        color:"#166534",
+        color: "#166534",
 
-        padding:"12px",
+        padding: "12px",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
-        fontWeight:"600"
+        fontWeight: "600"
+
     },
 
 
 
     serverError: {
 
-        background:"#fee2e2",
+        background: "#fee2e2",
 
-        color:"#991b1b",
+        color: "#991b1b",
 
-        padding:"12px",
+        padding: "12px",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
-        fontWeight:"600"
+        fontWeight: "600"
+
     },
 
 
 
     button: {
 
-        height:"50px",
+        height: "50px",
 
-        background:"#1e293b",
+        background: "#1e293b",
 
-        color:"#ffffff",
+        color: "#ffffff",
 
-        border:"none",
+        border: "none",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
-        cursor:"pointer",
+        cursor: "pointer",
 
-        fontWeight:"700"
+        fontWeight: "700"
+
     },
 
 
 
     smallButton: {
 
-        height:"45px",
+        height: "45px",
 
-        background:"#475569",
+        background: "#475569",
 
-        color:"#ffffff",
+        color: "#ffffff",
 
-        border:"none",
+        border: "none",
 
-        borderRadius:"10px",
+        borderRadius: "10px",
 
-        cursor:"pointer",
+        cursor: "pointer",
 
-        fontWeight:"600"
+        fontWeight: "600"
+
+    },
+
+
+
+    imageActions: {
+
+        display: "grid",
+
+        gridTemplateColumns:
+            "repeat(auto-fit,minmax(220px,1fr))",
+
+        gap: "12px"
+
+    },
+
+
+
+    imageButton: {
+
+        minHeight: "48px",
+
+        background: "#ffffff",
+
+        color: "#1e293b",
+
+        border: "1px solid #cbd5e1",
+
+        borderRadius: "10px",
+
+        padding: "10px 14px",
+
+        cursor: "pointer",
+
+        fontWeight: "700"
+
+    },
+
+
+
+    hiddenInput: {
+
+        display: "none"
+
+    },
+
+
+
+    selectedFile: {
+
+        background: "#f8fafc",
+
+        border: "1px solid #e2e8f0",
+
+        borderRadius: "10px",
+
+        padding: "12px",
+
+        color: "#475569",
+
+        fontSize: "14px",
+
+        overflowWrap: "anywhere"
+
+    },
+
+
+
+    previewContainer: {
+
+        display: "flex",
+
+        flexDirection: "column",
+
+        gap: "12px",
+
+        padding: "14px",
+
+        background: "#f8fafc",
+
+        border: "1px solid #e2e8f0",
+
+        borderRadius: "14px"
+
+    },
+
+
+
+    previewImage: {
+
+        width: "100%",
+
+        maxHeight: "420px",
+
+        objectFit: "contain",
+
+        borderRadius: "10px",
+
+        background: "#e2e8f0"
+
+    },
+
+
+
+    removeImageButton: {
+
+        height: "44px",
+
+        background: "#ffffff",
+
+        color: "#b91c1c",
+
+        border: "1px solid #fecaca",
+
+        borderRadius: "10px",
+
+        cursor: "pointer",
+
+        fontWeight: "700"
+
     }
 
 };
@@ -273,7 +423,7 @@ const styles = {
 
 
 
-function CreateElementoPage(){
+function CreateElementoPage() {
 
 
 
@@ -287,42 +437,47 @@ function CreateElementoPage(){
 
 
 
+    const galleryInputRef =
+        useRef(null);
 
 
 
-    const [tipi,setTipi] =
+    const cameraInputRef =
+        useRef(null);
+
+
+
+
+
+    const [tipi, setTipi] =
         useState([]);
 
 
 
-
-    const [nuovoTipo,setNuovoTipo] =
+    const [nuovoTipo, setNuovoTipo] =
         useState("");
 
 
 
 
 
-
-    const [formData,setFormData] =
+    const [formData, setFormData] =
         useState({
 
 
-            codice:"",
+            codice: "",
 
-            campata:"",
+            campata: "",
 
-            lato:"EST",
+            lato: "EST",
 
-            tipoElementoId:"",
+            tipoElementoId: "",
 
-            descrizione:"",
+            descrizione: "",
 
-            foto:"",
+            latitudine: "",
 
-            latitudine:"",
-
-            longitudine:""
+            longitudine: ""
 
 
         });
@@ -331,25 +486,32 @@ function CreateElementoPage(){
 
 
 
+    const [immagine, setImmagine] =
+        useState(null);
 
 
 
-    const [errors,setErrors] =
+    const [anteprimaImmagine, setAnteprimaImmagine] =
+        useState("");
+
+
+
+    const [errors, setErrors] =
         useState({});
 
 
 
-    const [success,setSuccess] =
+    const [success, setSuccess] =
         useState("");
 
 
 
-    const [serverError,setServerError] =
+    const [serverError, setServerError] =
         useState("");
 
 
 
-    const [loading,setLoading] =
+    const [loading, setLoading] =
         useState(false);
 
 
@@ -360,13 +522,37 @@ function CreateElementoPage(){
 
 
 
-    useEffect(()=>{
+    useEffect(() => {
 
 
         loadTipi();
 
 
-    },[]);
+    }, []);
+
+
+
+
+
+    useEffect(() => {
+
+
+        return () => {
+
+
+            if (anteprimaImmagine) {
+
+                URL.revokeObjectURL(
+                    anteprimaImmagine
+                );
+
+            }
+
+
+        };
+
+
+    }, [anteprimaImmagine]);
 
 
 
@@ -376,11 +562,11 @@ function CreateElementoPage(){
 
 
 
-    async function loadTipi(){
+    async function loadTipi() {
 
 
 
-        try{
+        try {
 
 
             const data =
@@ -392,9 +578,7 @@ function CreateElementoPage(){
             setTipi(data);
 
 
-
-
-        }catch(error){
+        } catch (error) {
 
 
             console.error(error);
@@ -413,7 +597,7 @@ function CreateElementoPage(){
 
 
 
-    function handleChange(event){
+    function handleChange(event) {
 
 
 
@@ -423,9 +607,7 @@ function CreateElementoPage(){
 
 
 
-
-
-        if(
+        if (
 
             event.target.name === "codice"
 
@@ -433,18 +615,13 @@ function CreateElementoPage(){
 
             event.target.name === "campata"
 
-        ){
+        ) {
 
 
             value = value.toUpperCase();
 
 
         }
-
-
-
-
-
 
 
 
@@ -455,14 +632,10 @@ function CreateElementoPage(){
 
 
             [event.target.name]:
-
             value
 
 
         });
-
-
-
 
 
 
@@ -472,24 +645,32 @@ function CreateElementoPage(){
             ...errors,
 
 
-            [event.target.name]:""
+            [event.target.name]:
+                ""
 
 
         });
 
 
 
-
         setServerError("");
 
 
-
     }
-    async function aggiungiTipoElemento(){
 
 
 
-        if(nuovoTipo.trim() === ""){
+
+
+
+
+
+
+    async function aggiungiTipoElemento() {
+
+
+
+        if (nuovoTipo.trim() === "") {
 
 
             return;
@@ -499,16 +680,14 @@ function CreateElementoPage(){
 
 
 
-
-
-
-        try{
+        try {
 
 
 
             const tipoCreato =
 
                 await createTipoElemento({
+
 
                     nome:
 
@@ -518,10 +697,8 @@ function CreateElementoPage(){
 
                             .toUpperCase()
 
+
                 });
-
-
-
 
 
 
@@ -538,29 +715,17 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
             setFormData({
-
 
 
                 ...formData,
 
 
-
                 tipoElementoId:
-
-
                 tipoCreato.tipoElementoId
 
 
-
             });
-
-
-
 
 
 
@@ -568,12 +733,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
-        }catch{
-
+        } catch {
 
 
             setServerError(
@@ -586,6 +746,141 @@ function CreateElementoPage(){
         }
 
 
+    }
+
+
+
+
+
+
+
+
+
+    function handleImageChange(event) {
+
+
+
+        const file =
+
+            event.target.files?.[0];
+
+
+
+        if (!file) {
+
+
+            return;
+
+
+        }
+
+
+
+        setServerError("");
+
+
+
+        if (!file.type.startsWith("image/")) {
+
+
+            setErrors({
+
+
+                ...errors,
+
+
+                immagine:
+                    "Il file selezionato deve essere un'immagine"
+
+
+            });
+
+
+            event.target.value = "";
+
+
+            return;
+
+
+        }
+
+
+
+        const maxSize =
+
+            10 * 1024 * 1024;
+
+
+
+        if (file.size > maxSize) {
+
+
+            setErrors({
+
+
+                ...errors,
+
+
+                immagine:
+                    "L'immagine non può superare 10 MB"
+
+
+            });
+
+
+            event.target.value = "";
+
+
+            return;
+
+
+        }
+
+
+
+        if (anteprimaImmagine) {
+
+
+            URL.revokeObjectURL(
+
+                anteprimaImmagine
+
+            );
+
+
+        }
+
+
+
+        const previewUrl =
+
+            URL.createObjectURL(file);
+
+
+
+        setImmagine(file);
+
+
+
+        setAnteprimaImmagine(
+
+            previewUrl
+
+        );
+
+
+
+        setErrors({
+
+
+            ...errors,
+
+
+            immagine: ""
+
+
+        });
+
 
     }
 
@@ -597,10 +892,75 @@ function CreateElementoPage(){
 
 
 
+    function rimuoviImmagine() {
 
 
 
-    async function handleSubmit(event){
+        if (anteprimaImmagine) {
+
+
+            URL.revokeObjectURL(
+
+                anteprimaImmagine
+
+            );
+
+
+        }
+
+
+
+        setImmagine(null);
+
+
+
+        setAnteprimaImmagine("");
+
+
+
+        setErrors({
+
+
+            ...errors,
+
+
+            immagine: ""
+
+
+        });
+
+
+
+        if (galleryInputRef.current) {
+
+
+            galleryInputRef.current.value = "";
+
+
+        }
+
+
+
+        if (cameraInputRef.current) {
+
+
+            cameraInputRef.current.value = "";
+
+
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
+    async function handleSubmit(event) {
 
 
 
@@ -608,15 +968,11 @@ function CreateElementoPage(){
 
 
 
-
-
         const newErrors = {};
 
 
 
-
-
-        if(!formData.codice.trim()){
+        if (!formData.codice.trim()) {
 
 
             newErrors.codice =
@@ -628,10 +984,7 @@ function CreateElementoPage(){
 
 
 
-
-
-        if(!formData.campata.trim()){
-
+        if (!formData.campata.trim()) {
 
 
             newErrors.campata =
@@ -643,11 +996,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
-        if(!formData.tipoElementoId){
-
+        if (!formData.tipoElementoId) {
 
 
             newErrors.tipoElementoId =
@@ -659,18 +1008,11 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
         setErrors(newErrors);
 
 
 
-
-
-
-        if(Object.keys(newErrors).length > 0){
+        if (Object.keys(newErrors).length > 0) {
 
 
             return;
@@ -682,12 +1024,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
         const body = {
-
 
 
 
@@ -715,13 +1052,6 @@ function CreateElementoPage(){
 
 
 
-            foto:
-
-            formData.foto,
-
-
-
-
             latitudine:
 
 
@@ -738,7 +1068,6 @@ function CreateElementoPage(){
                         formData.latitudine
 
                     ),
-
 
 
 
@@ -761,10 +1090,6 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
             asset: {
 
 
@@ -774,9 +1099,6 @@ function CreateElementoPage(){
 
 
             },
-
-
-
 
 
 
@@ -795,31 +1117,31 @@ function CreateElementoPage(){
             }
 
 
-
         };
 
 
 
 
 
-
-
-
-
-        try{
+        try {
 
 
 
             setLoading(true);
 
+            setSuccess("");
+
+            setServerError("");
 
 
 
+            await createElemento(
 
-            await createElemento(body);
+                body,
 
+                immagine
 
-
+            );
 
 
 
@@ -831,11 +1153,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
-            setTimeout(()=>{
+            setTimeout(() => {
 
 
                 navigate(
@@ -845,16 +1163,15 @@ function CreateElementoPage(){
                 );
 
 
-            },1500);
+            }, 1500);
 
 
 
+        } catch (error) {
 
 
 
-
-
-        }catch{
+            console.error(error);
 
 
 
@@ -866,16 +1183,14 @@ function CreateElementoPage(){
 
 
 
-        }finally{
+        } finally {
 
 
 
             setLoading(false);
 
 
-
         }
-
 
 
     }
@@ -888,12 +1203,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
-
-    return(
+    return (
 
 
         <MainLayout>
@@ -901,8 +1211,6 @@ function CreateElementoPage(){
 
 
             <div style={styles.container}>
-
-
 
 
 
@@ -924,10 +1232,6 @@ function CreateElementoPage(){
 
 
 
-
-
-
-
                 <form
 
                     onSubmit={handleSubmit}
@@ -935,9 +1239,6 @@ function CreateElementoPage(){
                     style={styles.card}
 
                 >
-
-
-
 
 
 
@@ -955,7 +1256,6 @@ function CreateElementoPage(){
 
 
 
-
                         <p style={styles.subtitle}>
 
 
@@ -966,54 +1266,7 @@ function CreateElementoPage(){
 
 
 
-
                     </div>
-
-
-
-
-
-
-
-
-                    {success &&
-
-
-                        <div style={styles.success}>
-
-
-                            {success}
-
-
-                        </div>
-
-
-                    }
-
-
-
-
-
-
-                    {serverError &&
-
-
-                        <div style={styles.serverError}>
-
-
-                            {serverError}
-
-
-                        </div>
-
-
-                    }
-
-
-
-
-
-
 
 
 
@@ -1031,12 +1284,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
                     <div style={styles.grid}>
-
-
 
 
 
@@ -1056,9 +1304,6 @@ function CreateElementoPage(){
 
 
 
-
-
-
                         <Input
 
                             label="Campata *"
@@ -1075,14 +1320,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
                     </div>
-
-
-
-
 
 
 
@@ -1096,8 +1334,6 @@ function CreateElementoPage(){
                             Tipo elemento *
 
                         </label>
-
-
 
 
 
@@ -1124,7 +1360,6 @@ function CreateElementoPage(){
                         >
 
 
-
                             <option value="">
 
                                 Seleziona tipo
@@ -1133,11 +1368,7 @@ function CreateElementoPage(){
 
 
 
-
-
-
                             {tipi.map(t => (
-
 
 
                                 <option
@@ -1155,17 +1386,10 @@ function CreateElementoPage(){
                                 </option>
 
 
-
                             ))}
 
 
-
-
-
                         </select>
-
-
-
 
 
 
@@ -1184,22 +1408,13 @@ function CreateElementoPage(){
                         }
 
 
-
                     </div>
 
 
 
 
 
-
-
-
-
-
-
                     <div style={styles.group}>
-
-
 
 
                         <label style={styles.label}>
@@ -1212,13 +1427,11 @@ function CreateElementoPage(){
 
 
 
-
-
                         <input
 
                             value={nuovoTipo}
 
-                            onChange={(e)=>
+                            onChange={(e) =>
 
                                 setNuovoTipo(
 
@@ -1231,9 +1444,6 @@ function CreateElementoPage(){
                             style={styles.input}
 
                         />
-
-
-
 
 
 
@@ -1254,15 +1464,7 @@ function CreateElementoPage(){
                         </button>
 
 
-
-
-
                     </div>
-
-
-
-
-
 
 
 
@@ -1275,11 +1477,6 @@ function CreateElementoPage(){
 
 
                     </h3>
-
-
-
-
-
 
 
 
@@ -1296,13 +1493,11 @@ function CreateElementoPage(){
                     >
 
 
-
                         <option value="EST">
 
                             EST
 
                         </option>
-
 
 
                         <option value="OVEST">
@@ -1312,7 +1507,6 @@ function CreateElementoPage(){
                         </option>
 
 
-
                         <option value="CARREGGIATA_UNICA">
 
                             CARREGGIATA UNICA
@@ -1320,13 +1514,7 @@ function CreateElementoPage(){
                         </option>
 
 
-
-
                     </select>
-
-
-
-
 
 
 
@@ -1339,11 +1527,6 @@ function CreateElementoPage(){
 
 
                     </h3>
-
-
-
-
-
 
 
 
@@ -1365,18 +1548,111 @@ function CreateElementoPage(){
 
 
 
+                    <h3 style={styles.sectionTitle}>
+
+
+                        Immagine dell'elemento
+
+
+                    </h3>
 
 
 
-                    <Input
+                    <p style={styles.sectionDescription}>
 
-                        label="Foto"
 
-                        name="foto"
+                        Seleziona un'immagine dal dispositivo oppure scatta una foto dell'elemento direttamente dalla fotocamera.
 
-                        value={formData.foto}
 
-                        onChange={handleChange}
+                    </p>
+
+
+
+
+
+                    <div style={styles.imageActions}>
+
+
+
+                        <button
+
+                            type="button"
+
+                            style={styles.imageButton}
+
+                            onClick={() =>
+
+                                galleryInputRef.current?.click()
+
+                            }
+
+                        >
+
+
+                            Seleziona immagine
+
+
+                        </button>
+
+
+
+                        <button
+
+                            type="button"
+
+                            style={styles.imageButton}
+
+                            onClick={() =>
+
+                                cameraInputRef.current?.click()
+
+                            }
+
+                        >
+
+
+                            Scatta foto
+
+
+                        </button>
+
+
+
+                    </div>
+
+
+
+
+
+                    <input
+
+                        ref={galleryInputRef}
+
+                        type="file"
+
+                        accept="image/*"
+
+                        onChange={handleImageChange}
+
+                        style={styles.hiddenInput}
+
+                    />
+
+
+
+                    <input
+
+                        ref={cameraInputRef}
+
+                        type="file"
+
+                        accept="image/*"
+
+                        capture="environment"
+
+                        onChange={handleImageChange}
+
+                        style={styles.hiddenInput}
 
                     />
 
@@ -1384,10 +1660,109 @@ function CreateElementoPage(){
 
 
 
+                    {errors.immagine &&
+
+
+                        <p style={styles.error}>
+
+
+                            {errors.immagine}
+
+
+                        </p>
+
+
+                    }
+
+
+
+
+
+                    {immagine &&
+
+
+                        <div style={styles.selectedFile}>
+
+
+                            Immagine selezionata: {immagine.name}
+
+
+                        </div>
+
+
+                    }
+
+
+
+
+
+                    {anteprimaImmagine &&
+
+
+                        <div style={styles.previewContainer}>
+
+
+
+                            <label style={styles.label}>
+
+
+                                Anteprima immagine
+
+
+                            </label>
+
+
+
+                            <img
+
+                                src={anteprimaImmagine}
+
+                                alt="Anteprima dell'elemento"
+
+                                style={styles.previewImage}
+
+                            />
+
+
+
+                            <button
+
+                                type="button"
+
+                                onClick={rimuoviImmagine}
+
+                                style={styles.removeImageButton}
+
+                            >
+
+
+                                Rimuovi immagine
+
+
+                            </button>
+
+
+
+                        </div>
+
+
+                    }
+
+
+
+
+
+                    <h3 style={styles.sectionTitle}>
+
+
+                        Posizione
+
+
+                    </h3>
+
 
 
                     <div style={styles.grid}>
-
 
 
 
@@ -1405,8 +1780,6 @@ function CreateElementoPage(){
 
 
 
-
-
                         <Input
 
                             label="Longitudine"
@@ -1421,12 +1794,7 @@ function CreateElementoPage(){
 
 
 
-
                     </div>
-
-
-
-
 
 
 
@@ -1439,7 +1807,6 @@ function CreateElementoPage(){
                         style={styles.button}
 
                     >
-
 
 
                         {loading
@@ -1455,12 +1822,41 @@ function CreateElementoPage(){
                         }
 
 
-
-
                     </button>
 
 
 
+
+
+                    {success &&
+
+
+                        <div style={styles.success}>
+
+
+                            {success}
+
+
+                        </div>
+
+
+                    }
+
+
+
+                    {serverError &&
+
+
+                        <div style={styles.serverError}>
+
+
+                            {serverError}
+
+
+                        </div>
+
+
+                    }
 
 
 
@@ -1468,11 +1864,7 @@ function CreateElementoPage(){
 
 
 
-
-
             </div>
-
-
 
 
         </MainLayout>
@@ -1503,14 +1895,13 @@ function Input({
 
                    onChange
 
-               }){
+               }) {
 
 
-    return(
+    return (
 
 
         <div style={styles.group}>
-
 
 
 
@@ -1521,9 +1912,6 @@ function Input({
 
 
             </label>
-
-
-
 
 
 
@@ -1551,10 +1939,6 @@ function Input({
 
 
 
-
-
-
-
             {error &&
 
 
@@ -1571,7 +1955,6 @@ function Input({
 
 
 
-
         </div>
 
 
@@ -1579,7 +1962,6 @@ function Input({
 
 
 }
-
 
 
 

@@ -5,7 +5,9 @@ import {
     from "react";
 
 
-import { Link }
+import {
+    Link
+}
     from "react-router-dom";
 
 
@@ -20,68 +22,87 @@ import {
 
 
 
+function IspezioneEsecuzioniSection({
 
+                                        ispezione,
 
+                                        onIspezioneChanged
 
-
-
-
-function IspezioneEsecuzioniSection({ispezione}){
-
-
-
+                                    }){
 
 
     const [search,setSearch] =
         useState("");
 
 
-
     const [stato,setStato] =
         useState("TUTTE");
-
 
 
     const [ordine,setOrdine] =
         useState("numero");
 
 
-
     const [disponibili,setDisponibili] =
         useState([]);
 
 
+    const [success,setSuccess] =
+        useState("");
+
+
+    const [error,setError] =
+        useState("");
+
+
+    const [associandoId,setAssociandoId] =
+        useState(null);
 
 
 
+    const isInCorso =
 
-
+        ispezione.stato === "IN_CORSO";
 
 
 
     useEffect(()=>{
 
 
-        loadDisponibili();
+        if(isInCorso){
 
 
-    },[ispezione]);
+            loadDisponibili();
 
 
+        }else{
 
 
+            setDisponibili([]);
 
 
+        }
 
 
+    },[
+
+        ispezione.ispezioneId,
+
+        ispezione.pianoId,
+
+        ispezione.stato
+
+    ]);
 
 
 
     async function loadDisponibili(){
 
 
-
         if(!ispezione.pianoId){
+
+
+            setDisponibili([]);
 
 
             return;
@@ -90,37 +111,19 @@ function IspezioneEsecuzioniSection({ispezione}){
         }
 
 
-
-
-
-
         try{
-
 
 
             const data =
 
-
                 await getEsecuzioniDisponibili(
 
-
                     ispezione.pianoId
-
 
                 );
 
 
-
-
-
-            setDisponibili(
-
-                data
-
-            );
-
-
-
+            setDisponibili(data);
 
 
         }catch(error){
@@ -129,101 +132,117 @@ function IspezioneEsecuzioniSection({ispezione}){
             console.error(error);
 
 
+            setError(
+
+                error.message
+
+                ||
+
+                "Errore durante il caricamento delle prove disponibili"
+
+            );
+
+
         }
 
 
-
-
     }
-
-
-
-
-
-
-
-
-
-
 
 
 
     async function handleAssocia(id){
 
 
-
         try{
 
+
+            setSuccess("");
+
+            setError("");
+
+            setAssociandoId(id);
 
 
             await associaEsecuzioneIspezione(
 
-
                 id,
 
-
                 ispezione.ispezioneId
-
 
             );
 
 
+            setSuccess(
+
+                "Prova associata correttamente"
+
+            );
 
 
+            /*
+             * Ricarichiamo l'ispezione.
+             *
+             * Il DTO aggiornato conterrà
+             * la nuova prova associata.
+             */
+
+            if(onIspezioneChanged){
 
 
-
-            window.location.reload();
-
+                await onIspezioneChanged();
 
 
+            }
 
+
+            /*
+             * Aggiorniamo anche
+             * le prove disponibili.
+             */
+
+            await loadDisponibili();
 
 
         }catch(error){
 
 
-
             console.error(error);
 
 
+            setError(
+
+                error.message
+
+                ||
+
+                "Errore durante l'associazione della prova"
+
+            );
+
+
+        }finally{
+
+
+            setAssociandoId(null);
+
 
         }
-
-
 
 
     }
 
 
 
-
-
-
-
-
-
-
-
-
     let prove =
 
-        ispezione.esecuzioni || [];
-
-
-
-
-
+        [...(ispezione.esecuzioni || [])];
 
 
 
     prove = prove.filter(p => {
 
 
-
-
         const testo =
-
 
             (
 
@@ -247,89 +266,54 @@ function IspezioneEsecuzioniSection({ispezione}){
 
             )
 
-
                 .toLowerCase();
-
-
-
-
-
 
 
         return (
 
-
-
             testo.includes(
-
 
                 search.toLowerCase()
 
-
             )
-
-
 
             &&
 
-
-
-
             (
-
 
                 stato === "TUTTE"
 
-
                 ||
-
 
                 p.stato === stato
 
-
-
             )
 
-
-
         );
-
 
 
     });
 
 
 
-
-
-
-
-
-
     prove.sort((a,b)=>{
 
 
+        if(ordine === "numero"){
 
 
+            return (
 
-        if(ordine==="numero"){
-
-
-
-            return (a.numero || 0)
+                (a.numero || 0)
 
                 -
 
-                (b.numero || 0);
+                (b.numero || 0)
 
+            );
 
 
         }
-
-
-
-
-
 
 
         return String(
@@ -349,26 +333,17 @@ function IspezioneEsecuzioniSection({ispezione}){
             );
 
 
+    });
 
 
-    });     return(
 
+    return(
 
 
         <div style={styles.card}>
 
 
-
-
-
-
-
-
             <div style={styles.header}>
-
-
-
-
 
 
                 <div>
@@ -379,8 +354,6 @@ function IspezioneEsecuzioniSection({ispezione}){
                         Prove
 
                     </h2>
-
-
 
 
                     <p style={styles.subtitle}>
@@ -394,55 +367,68 @@ function IspezioneEsecuzioniSection({ispezione}){
 
 
 
+                {
+
+                    isInCorso &&
 
 
+                    <Link
 
+                        to={`/ispezione/${ispezione.ispezioneId}/nuova-esecuzione`}
 
+                        style={styles.addButton}
 
-                <Link
+                    >
 
-                    to={`/ispezione/${ispezione.ispezioneId}/nuova-esecuzione`}
+                        + Nuova Prova
 
-                    style={styles.addButton}
+                    </Link>
 
-                >
-
-
-                    + Nuova Prova
-
-
-                </Link>
-
-
-
-
+                }
 
 
             </div>
 
 
 
+            {
+
+                success &&
+
+
+                <div style={styles.successBox}>
+
+                    {success}
+
+                </div>
+
+            }
 
 
 
+            {
+
+                error &&
+
+
+                <div style={styles.errorBox}>
+
+                    {error}
+
+                </div>
+
+            }
 
 
 
             <div style={styles.filters}>
 
 
-
-
-
-
                 <input
-
 
                     placeholder="Cerca prova..."
 
-
                     value={search}
-
 
                     onChange={
 
@@ -450,25 +436,14 @@ function IspezioneEsecuzioniSection({ispezione}){
 
                     }
 
-
                     style={styles.input}
-
 
                 />
 
 
-
-
-
-
-
-
-
                 <select
 
-
                     value={ordine}
-
 
                     onChange={
 
@@ -476,12 +451,9 @@ function IspezioneEsecuzioniSection({ispezione}){
 
                     }
 
-
                     style={styles.select}
 
-
                 >
-
 
 
                     <option value="numero">
@@ -491,13 +463,11 @@ function IspezioneEsecuzioniSection({ispezione}){
                     </option>
 
 
-
                     <option value="nomeProva">
 
                         Nome prova
 
                     </option>
-
 
 
                     <option value="codiceElemento">
@@ -507,7 +477,6 @@ function IspezioneEsecuzioniSection({ispezione}){
                     </option>
 
 
-
                     <option value="stato">
 
                         Stato
@@ -515,30 +484,14 @@ function IspezioneEsecuzioniSection({ispezione}){
                     </option>
 
 
-
                 </select>
-
-
-
-
-
 
 
             </div>
 
 
 
-
-
-
-
-
-
-
             <div style={styles.stateButtons}>
-
-
-
 
 
                 {
@@ -557,24 +510,18 @@ function IspezioneEsecuzioniSection({ispezione}){
 
                         "AGGIUNTA_IN_SITO"
 
-
                     ].map(s=>(
-
-
 
 
                         <button
 
-
                             key={s}
-
 
                             onClick={()=>setStato(s)}
 
-
                             style={
 
-                                stato===s
+                                stato === s
 
                                     ?
 
@@ -586,16 +533,11 @@ function IspezioneEsecuzioniSection({ispezione}){
 
                             }
 
-
                         >
-
 
                             {s}
 
-
                         </button>
-
-
 
 
                     ))
@@ -603,17 +545,7 @@ function IspezioneEsecuzioniSection({ispezione}){
                 }
 
 
-
-
             </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -621,32 +553,19 @@ function IspezioneEsecuzioniSection({ispezione}){
 
                 prove.length === 0
 
-
                     ?
-
 
                     <div style={styles.empty}>
 
-
                         Nessuna prova associata
 
-
                     </div>
-
-
-
 
 
                     :
 
 
-
-
-
                     <table style={styles.table}>
-
-
-
 
 
                         <thead>
@@ -655,22 +574,46 @@ function IspezioneEsecuzioniSection({ispezione}){
                         <tr>
 
 
-                            <th style={styles.th}>Sigla</th>
+                            <th style={styles.th}>
+
+                                Sigla
+
+                            </th>
 
 
-                            <th style={styles.th}>Numero</th>
+                            <th style={styles.th}>
+
+                                Numero
+
+                            </th>
 
 
-                            <th style={styles.th}>Prova</th>
+                            <th style={styles.th}>
+
+                                Prova
+
+                            </th>
 
 
-                            <th style={styles.th}>Elemento</th>
+                            <th style={styles.th}>
+
+                                Elemento
+
+                            </th>
 
 
-                            <th style={styles.th}>Campata</th>
+                            <th style={styles.th}>
+
+                                Campata
+
+                            </th>
 
 
-                            <th style={styles.th}>Stato</th>
+                            <th style={styles.th}>
+
+                                Stato
+
+                            </th>
 
 
                         </tr>
@@ -680,137 +623,72 @@ function IspezioneEsecuzioniSection({ispezione}){
 
 
 
-
-
-
-
-
-
                         <tbody>
 
 
                         {
 
-
                             prove.map(p=>(
-
-
 
 
                                 <tr key={p.esecuzioneId}>
 
 
-
-
-
-
                                     <td style={styles.td}>
-
 
                                         {p.sigla}
 
-
                                     </td>
 
 
-
-
-
-
                                     <td style={styles.td}>
-
 
                                         {p.numero}
 
-
                                     </td>
 
 
-
-
-
-
-
-
                                     <td style={styles.td}>
-
-
 
 
                                         <Link
 
-
                                             to={`/esecuzione/${p.esecuzioneId}`}
-
 
                                             style={styles.link}
 
-
                                         >
 
-
                                             {p.nomeProva}
-
 
                                         </Link>
 
 
-
-
                                     </td>
 
 
-
-
-
-
-
-
                                     <td style={styles.td}>
-
 
                                         {p.codiceElemento || "-"}
 
-
                                     </td>
 
 
-
-
-
-
-
                                     <td style={styles.td}>
-
 
                                         {p.campata || "-"}
 
-
                                     </td>
-
-
-
-
-
-
 
 
                                     <td style={styles.td}>
 
-
                                         {p.stato}
-
 
                                     </td>
 
 
-
-
-
-
                                 </tr>
-
-
 
 
                             ))
@@ -821,235 +699,176 @@ function IspezioneEsecuzioniSection({ispezione}){
                         </tbody>
 
 
-
-
-
                     </table>
 
-
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <h2 style={styles.title}>
-
-
-                Prove disponibili del piano
-
-
-            </h2>
-
-
-
-
-
-
-
 
 
 
             {
 
+                isInCorso &&
 
-                disponibili.length === 0
 
+                <>
 
-                    ?
 
+                    <h2 style={styles.title}>
 
-                    <div style={styles.empty}>
+                        Prove disponibili del piano
 
+                    </h2>
 
-                        Nessuna prova disponibile
 
+                    {
 
-                    </div>
+                        disponibili.length === 0
 
+                            ?
 
+                            <div style={styles.empty}>
 
-
-
-                    :
-
-
-
-
-
-                    disponibili.map(p=>(
-
-
-
-
-                        <div
-
-                            key={p.esecuzioneId}
-
-                            style={styles.available}
-
-                        >
-
-
-
-
-
-
-
-                            <div>
-
-
-
-
-
-                                <div style={styles.value}>
-
-
-
-                                    {p.sigla}
-
-
-                                    {" "}
-
-
-                                    {p.numero}
-
-
-                                    {" - "}
-
-
-                                    {p.nomeProva}
-
-
-
-                                </div>
-
-
-
-
-
-
-
-
-                                <div style={styles.smallText}>
-
-
-
-                                    Elemento:
-
-
-                                    {" "}
-
-
-                                    {p.codiceElemento || "-"}
-
-
-
-
-                                    {" | Campata: "}
-
-
-
-
-                                    {p.campata || "-"}
-
-
-
-
-                                    {" | Stato: "}
-
-
-
-
-                                    {p.stato}
-
-
-
-                                </div>
-
-
-
-
-
+                                Nessuna prova disponibile
 
                             </div>
 
 
+                            :
+
+
+                            disponibili.map(p=>(
+
+
+                                <div
+
+                                    key={p.esecuzioneId}
+
+                                    style={styles.available}
+
+                                >
+
+
+                                    <div>
+
+
+                                        <div style={styles.value}>
+
+
+                                            {p.sigla}
+
+                                            {" "}
+
+                                            {p.numero}
+
+                                            {" - "}
+
+                                            {p.nomeProva}
+
+
+                                        </div>
+
+
+                                        <div style={styles.smallText}>
+
+
+                                            Elemento:
+
+                                            {" "}
+
+                                            {p.codiceElemento || "-"}
+
+
+                                            {" | Campata: "}
+
+
+                                            {p.campata || "-"}
+
+
+                                            {" | Stato: "}
+
+
+                                            {p.stato}
+
+
+                                        </div>
+
+
+                                    </div>
 
 
 
+                                    <button
+
+                                        onClick={()=>handleAssocia(
+
+                                            p.esecuzioneId
+
+                                        )}
+
+                                        disabled={
+
+                                            associandoId !== null
+
+                                        }
+
+                                        style={
+
+                                            associandoId !== null
+
+                                                ?
+
+                                                styles.disabledButton
+
+                                                :
+
+                                                styles.button
+
+                                        }
+
+                                    >
+
+                                        {
+
+                                            associandoId === p.esecuzioneId
+
+                                                ?
+
+                                                "Associazione..."
+
+                                                :
+
+                                                "Associa all'ispezione"
+
+                                        }
+
+                                    </button>
 
 
+                                </div>
 
 
-                            <button
+                            ))
+
+                    }
 
 
-                                onClick={()=>handleAssocia(
-
-                                    p.esecuzioneId
-
-                                )}
-
-
-                                style={styles.button}
-
-
-                            >
-
-
-                                Associa all'ispezione
-
-
-                            </button>
-
-
-
-
-
-
-
-
-                        </div>
-
-
-
-
-
-                    ))
-
+                </>
 
             }
 
 
-
-
-
-
-
-
-
         </div>
-
-
 
 
     );
 
 
 
-} const styles = {
+}
 
 
 
+const styles = {
 
 
     card:{
@@ -1074,14 +893,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
     header:{
 
         display:"flex",
@@ -1097,14 +908,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
     title:{
 
         margin:0,
@@ -1116,13 +919,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
     subtitle:{
 
         margin:"6px 0 0 0",
@@ -1132,14 +928,6 @@ function IspezioneEsecuzioniSection({ispezione}){
         fontSize:"14px"
 
     },
-
-
-
-
-
-
-
-
 
 
     addButton:{
@@ -1159,15 +947,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
-
     filters:{
 
         display:"flex",
@@ -1177,15 +956,6 @@ function IspezioneEsecuzioniSection({ispezione}){
         flexWrap:"wrap"
 
     },
-
-
-
-
-
-
-
-
-
 
 
     input:{
@@ -1205,14 +975,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
     select:{
 
         padding:"14px",
@@ -1226,14 +988,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
     stateButtons:{
 
         display:"flex",
@@ -1243,15 +997,6 @@ function IspezioneEsecuzioniSection({ispezione}){
         flexWrap:"wrap"
 
     },
-
-
-
-
-
-
-
-
-
 
 
     stateButton:{
@@ -1269,14 +1014,6 @@ function IspezioneEsecuzioniSection({ispezione}){
         cursor:"pointer"
 
     },
-
-
-
-
-
-
-
-
 
 
     activeState:{
@@ -1298,14 +1035,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
     table:{
 
         width:"100%",
@@ -1315,15 +1044,6 @@ function IspezioneEsecuzioniSection({ispezione}){
         tableLayout:"fixed"
 
     },
-
-
-
-
-
-
-
-
-
 
 
     th:{
@@ -1343,15 +1063,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
-
     td:{
 
         padding:"12px",
@@ -1367,15 +1078,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
-
     link:{
 
         color:"#1e293b",
@@ -1385,14 +1087,6 @@ function IspezioneEsecuzioniSection({ispezione}){
         fontWeight:"700"
 
     },
-
-
-
-
-
-
-
-
 
 
     empty:{
@@ -1412,15 +1106,6 @@ function IspezioneEsecuzioniSection({ispezione}){
         fontWeight:"600"
 
     },
-
-
-
-
-
-
-
-
-
 
 
     available:{
@@ -1446,14 +1131,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
     button:{
 
         backgroundColor:"#1e293b",
@@ -1473,12 +1150,23 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
+    disabledButton:{
 
+        backgroundColor:"#94a3b8",
 
+        color:"#ffffff",
 
+        border:"none",
 
+        padding:"10px 15px",
 
+        borderRadius:"10px",
 
+        fontWeight:"700",
+
+        cursor:"not-allowed"
+
+    },
 
 
     value:{
@@ -1492,14 +1180,6 @@ function IspezioneEsecuzioniSection({ispezione}){
     },
 
 
-
-
-
-
-
-
-
-
     smallText:{
 
         marginTop:"6px",
@@ -1510,22 +1190,44 @@ function IspezioneEsecuzioniSection({ispezione}){
 
         fontWeight:"600"
 
+    },
+
+
+    successBox:{
+
+        background:"#f0fdf4",
+
+        border:"1px solid #bbf7d0",
+
+        color:"#166534",
+
+        padding:"12px 14px",
+
+        borderRadius:"10px",
+
+        fontWeight:"600"
+
+    },
+
+
+    errorBox:{
+
+        background:"#fef2f2",
+
+        border:"1px solid #fecaca",
+
+        color:"#991b1b",
+
+        padding:"12px 14px",
+
+        borderRadius:"10px",
+
+        fontWeight:"600"
+
     }
 
 
-
-
-
-
-
-
 };
-
-
-
-
-
-
 
 
 export default IspezioneEsecuzioniSection;

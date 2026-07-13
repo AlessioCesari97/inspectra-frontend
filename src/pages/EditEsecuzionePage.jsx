@@ -1,1058 +1,878 @@
-import { useEffect, useState }
-    from "react";
-
+import { useEffect, useState } from "react";
 
 import {
     useParams,
     useNavigate,
     Link
-}
-    from "react-router-dom";
+} from "react-router-dom";
 
-
-import MainLayout
-    from "../layouts/MainLayout";
-
+import MainLayout from "../layouts/MainLayout";
 
 import {
-
     getEsecuzioneById,
     updateEsecuzione,
     getIspezioni,
     getElementi
+} from "../api/api";
 
-}
-    from "../api/api";
 
+function EditEsecuzionePage() {
 
+    const { id } = useParams();
 
+    const navigate = useNavigate();
 
 
+    // =========================
+    // DATI
+    // =========================
 
-
-
-
-const styles = {
-
-
-    card: {
-
-        background:"#ffffff",
-        padding:"25px",
-        borderRadius:"18px",
-        border:"1px solid #e2e8f0",
-        boxShadow:"0 4px 12px rgba(15,23,42,0.05)",
-        display:"flex",
-        flexDirection:"column",
-        gap:"15px"
-
-    },
-
-
-
-    header: {
-
-        display:"flex",
-        justifyContent:"space-between",
-        alignItems:"center",
-        marginBottom:"20px"
-
-    },
-
-
-
-    title: {
-
-        margin:0,
-
-        fontSize:"32px",
-
-        fontWeight:"700",
-
-        color:"#1e293b"
-
-    },
-
-
-
-    label: {
-
-        fontWeight:"700",
-        color:"#475569",
-        fontSize:"14px"
-
-    },
-
-
-
-    input: {
-
-        padding:"10px",
-        borderRadius:"10px",
-        border:"1px solid #cbd5e1"
-
-    },
-
-
-
-    textarea: {
-
-        padding:"10px",
-        minHeight:"90px",
-        borderRadius:"10px",
-        border:"1px solid #cbd5e1"
-
-    },
-
-
-
-    backButton: {
-
-        width:"fit-content",
-
-        backgroundColor:"#ffffff",
-
-        color:"#1e293b",
-
-        padding:"10px 14px",
-
-        borderRadius:"10px",
-
-        textDecoration:"none",
-
-        border:"1px solid #e2e8f0",
-
-        fontWeight:"600"
-
-    },
-
-
-
-    button:{
-
-        height:"50px",
-
-        borderRadius:"10px",
-
-        border:"none",
-
-        backgroundColor:"#1e293b",
-
-        color:"#ffffff",
-
-        fontWeight:"700",
-
-        cursor:"pointer",
-
-        fontSize:"15px"
-
-    },
-
-
-
-    success: {
-
-        color:"green",
-        fontWeight:"700"
-
-    },
-
-
-
-    error: {
-
-        color:"red",
-        fontWeight:"700"
-
-    }
-
-
-};
-
-
-
-
-
-
-
-
-
-
-function EditEsecuzionePage(){
-
-
-
-    const { id } =
-        useParams();
-
-
-
-    const navigate =
-        useNavigate();
-
-
-
-
-
-    const [formData,setFormData] =
+    const [formData, setFormData] =
         useState(null);
 
+    const [ispezioni, setIspezioni] =
+        useState([]);
 
-    const [ispezioni,setIspezioni] =
+    const [elementi, setElementi] =
         useState([]);
 
 
-    const [elementi,setElementi] =
-        useState([]);
+    // =========================
+    // STATO PAGINA
+    // =========================
 
+    const [errors, setErrors] =
+        useState({});
 
-
-    const [error,setError] =
+    const [serverError, setServerError] =
         useState("");
 
-
-    const [success,setSuccess] =
+    const [success, setSuccess] =
         useState("");
 
+    const [loading, setLoading] =
+        useState(false);
+
+    const [loadingData, setLoadingData] =
+        useState(true);
 
 
+    // =========================
+    // CARICAMENTO
+    // =========================
 
-
-
-
-    useEffect(()=>{
-
+    useEffect(() => {
 
         loadData();
 
-
-    },[]);
-
+    }, [id]);
 
 
+    async function loadData() {
+
+        try {
+
+            setLoadingData(true);
+
+            setServerError("");
 
 
+            const [
+                esecuzione,
+                ispezioniData,
+                elementiData
+            ] = await Promise.all([
 
+                getEsecuzioneById(id),
 
+                getIspezioni(),
 
-    async function loadData(){
+                getElementi()
 
-
-        try{
-
-
-            const e =
-                await getEsecuzioneById(id);
-
+            ]);
 
 
             setIspezioni(
-
-                await getIspezioni()
-
+                ispezioniData || []
             );
-
 
 
             setElementi(
-
-                await getElementi()
-
+                elementiData || []
             );
-
-
-
-
-
 
 
             setFormData({
 
-
                 esecuzioneId:
-                e.esecuzioneId,
+                esecuzione.esecuzioneId,
 
 
                 numero:
-                    e.numero || "",
+                    esecuzione.numero ?? "",
 
 
                 stato:
-                e.stato,
+                esecuzione.stato,
 
 
                 puntoPrevisto:
-                    e.puntoPrevisto || "",
+                    esecuzione.puntoPrevisto || "",
 
 
                 note:
-                    e.note || "",
+                    esecuzione.note || "",
 
 
                 timestamp:
-                    e.timestamp || "",
+
+                    esecuzione.timestamp
+
+                        ? esecuzione.timestamp.slice(0, 16)
+
+                        : "",
 
 
-
+                // FOTO PIANO
 
                 fotoPiano1:
-                    e.fotoPiano1 || "",
-
+                    esecuzione.fotoPiano1 || "",
 
                 fotoPiano2:
-                    e.fotoPiano2 || "",
-
+                    esecuzione.fotoPiano2 || "",
 
                 fotoPiano3:
-                    e.fotoPiano3 || "",
+                    esecuzione.fotoPiano3 || "",
 
 
-
+                // FOTO CANTIERE
 
                 fotoCantiere1:
-                    e.fotoCantiere1 || "",
-
+                    esecuzione.fotoCantiere1 || "",
 
                 fotoCantiere2:
-                    e.fotoCantiere2 || "",
+                    esecuzione.fotoCantiere2 || "",
 
 
-
+                // GPS
 
                 latitudine:
-                    e.latitudine || "",
-
+                    esecuzione.latitudine ?? "",
 
                 longitudine:
-                    e.longitudine || "",
+                    esecuzione.longitudine ?? "",
 
 
+                // RELAZIONI
 
+                pianoIndagine: {
 
-
-                pianoIndagine:{
-
-                    pianoId:e.pianoId
-
-                },
-
-
-                prova:{
-
-                    provaId:e.provaId
+                    pianoId:
+                    esecuzione.pianoId
 
                 },
 
 
-                elemento:{
+                prova: {
 
-                    elementoId:e.elementoId
+                    provaId:
+                    esecuzione.provaId
 
                 },
 
 
+                elemento: {
 
+                    elementoId:
+                    esecuzione.elementoId
+
+                },
 
 
                 ispezione:
 
+                    esecuzione.ispezioneId
 
-                    e.ispezioneId
+                        ? {
 
-                        ?
-
-                        {
-
-                            ispezioneId:e.ispezioneId
+                            ispezioneId:
+                            esecuzione.ispezioneId
 
                         }
 
-                        :
-
-                        null,
-
-
-
-
+                        : null,
 
 
                 spostatoElemento:
 
+                    esecuzione.spostatoElementoId
 
-                    e.spostatoElementoId
+                        ? {
 
-                        ?
-
-                        {
-
-                            elementoId:e.spostatoElementoId
+                            elementoId:
+                            esecuzione.spostatoElementoId
 
                         }
 
-                        :
-
-                        null
-
+                        : null
 
             });
 
 
+        } catch (error) {
 
-        }catch(err){
+            console.error(error);
 
 
-            console.error(err);
-
-            setError(
-                "Errore caricamento dati"
+            setServerError(
+                "❌ Errore durante il caricamento della prova"
             );
 
 
+        } finally {
+
+            setLoadingData(false);
+
         }
 
-
-    }     function handleChange(e){
-
-
-        const { name,value } =
-            e.target;
+    }
 
 
+    // =========================
+    // CAMPI NORMALI
+    // =========================
+
+    function handleChange(e) {
+
+        const {
+            name,
+            value
+        } = e.target;
 
 
+        setFormData(prev => ({
 
-        if(name === "stato"){
+            ...prev,
+
+            [name]: value
+
+        }));
 
 
-            let nuovo = {
+        clearError(name);
+
+    }
 
 
-                ...formData,
+    // =========================
+    // CAMBIO STATO
+    // =========================
+
+    function handleStatoChange(e) {
+
+        const nuovoStato =
+            e.target.value;
 
 
-                stato:value
+        setFormData(prev => {
 
+            const nuovo = {
+
+                ...prev,
+
+                stato:
+                nuovoStato
 
             };
 
 
+            // =========================
+            // PREVISTA
+            // =========================
+            //
+            // Ispezione opzionale.
+            // Nessun timestamp.
+            // Nessuna foto cantiere.
+            // Nessun GPS.
+            // Nessuno spostamento.
+            //
 
-
-
-
-
-            if(value === "PREVISTA"){
-
+            if (nuovoStato === "PREVISTA") {
 
                 nuovo.timestamp = "";
 
-
                 nuovo.fotoCantiere1 = "";
-
 
                 nuovo.fotoCantiere2 = "";
 
-
                 nuovo.latitudine = "";
-
 
                 nuovo.longitudine = "";
 
-
                 nuovo.spostatoElemento = null;
-
 
             }
 
 
+            // =========================
+            // AGGIUNTA IN SITO
+            // =========================
+            //
+            // Ispezione obbligatoria.
+            // Timestamp obbligatorio.
+            // Note obbligatorie.
+            // Foto piano disponibili.
+            // Foto cantiere disponibili.
+            // Nessun GPS.
+            // Nessuno spostamento.
+            //
+
+            if (
+                nuovoStato ===
+                "AGGIUNTA_IN_SITO"
+            ) {
+
+                nuovo.latitudine = "";
+
+                nuovo.longitudine = "";
+
+                nuovo.spostatoElemento = null;
+
+            }
 
 
+            // =========================
+            // ESEGUITA
+            // =========================
+            //
+            // Ispezione obbligatoria.
+            // Timestamp obbligatorio.
+            // Note opzionali.
+            // Foto piano disponibili.
+            // Foto cantiere disponibili.
+            // GPS opzionale.
+            // Nessuno spostamento.
+            //
+
+            if (
+                nuovoStato ===
+                "ESEGUITA"
+            ) {
+
+                nuovo.spostatoElemento = null;
+
+            }
 
 
+            // =========================
+            // NON ESEGUIBILE
+            // =========================
+            //
+            // Ispezione obbligatoria.
+            // Timestamp opzionale.
+            // Note obbligatorie.
+            // Foto piano disponibili.
+            // Nessuna foto cantiere.
+            // Nessun GPS.
+            // Nessuno spostamento.
+            //
 
-
-
-            if(value === "NON_ESEGUIBILE"){
-
+            if (
+                nuovoStato ===
+                "NON_ESEGUIBILE"
+            ) {
 
                 nuovo.fotoCantiere1 = "";
 
-
                 nuovo.fotoCantiere2 = "";
-
 
                 nuovo.latitudine = "";
 
-
                 nuovo.longitudine = "";
 
-
                 nuovo.spostatoElemento = null;
-
 
             }
 
 
+            // =========================
+            // SPOSTATA
+            // =========================
+            //
+            // Mantiene elemento origine.
+            // Destinazione obbligatoria.
+            // Note obbligatorie.
+            // Nessuna ispezione.
+            // Nessun timestamp.
+            // Nessuna foto cantiere.
+            // Nessun GPS.
+            //
 
+            if (
+                nuovoStato ===
+                "SPOSTATA"
+            ) {
 
+                nuovo.ispezione = null;
 
-
-
-
-
-            if(value === "SPOSTATA"){
-
+                nuovo.timestamp = "";
 
                 nuovo.fotoCantiere1 = "";
 
-
                 nuovo.fotoCantiere2 = "";
-
 
                 nuovo.latitudine = "";
 
-
                 nuovo.longitudine = "";
 
-
             }
 
 
+            return nuovo;
+
+        });
 
 
+        setErrors({});
+
+        setServerError("");
+
+    }
 
 
+    // =========================
+    // ISPEZIONE
+    // =========================
+
+    function handleIspezioneChange(e) {
+
+        const value =
+            e.target.value;
 
 
+        setFormData(prev => ({
 
-            if(
+            ...prev,
 
-                value === "ESEGUITA"
+            ispezione:
 
-                ||
+                value
 
-                value === "AGGIUNTA_IN_SITO"
+                    ? {
 
-            ){
+                        ispezioneId:
+                            Number(value)
 
+                    }
 
-                nuovo.spostatoElemento = null;
+                    : null
 
-
-            }
-
-
-
-
+        }));
 
 
+        clearError("ispezione");
+
+    }
 
 
+    // =========================
+    // ELEMENTO DESTINAZIONE
+    // =========================
 
-            setFormData(nuovo);
+    function handleElementoSpostatoChange(e) {
+
+        const value =
+            e.target.value;
 
 
-            return;
+        setFormData(prev => ({
 
+            ...prev,
+
+            spostatoElemento:
+
+                value
+
+                    ? {
+
+                        elementoId:
+                            Number(value)
+
+                    }
+
+                    : null
+
+        }));
+
+
+        clearError("spostatoElemento");
+
+    }
+
+
+    // =========================
+    // PULIZIA ERRORE
+    // =========================
+
+    function clearError(name) {
+
+        setErrors(prev => ({
+
+            ...prev,
+
+            [name]: ""
+
+        }));
+
+
+        setServerError("");
+
+    }
+
+
+    // =========================
+    // VALIDAZIONE
+    // =========================
+
+    function validate() {
+
+        const newErrors = {};
+
+
+        // =========================
+        // CAMPI COMUNI
+        // =========================
+
+
+        if (
+            !formData.numero
+
+            ||
+
+            Number(formData.numero) <= 0
+        ) {
+
+            newErrors.numero =
+                "Inserisci un numero prova valido";
 
         }
 
 
+        if (
+            !formData.puntoPrevisto.trim()
+        ) {
+
+            newErrors.puntoPrevisto =
+                "Il punto previsto è obbligatorio";
+
+        }
 
 
+        // =========================
+        // AGGIUNTA IN SITO
+        // =========================
 
 
+        if (
+            formData.stato ===
+            "AGGIUNTA_IN_SITO"
+        ) {
+
+            if (
+                !formData
+                    .ispezione
+                    ?.ispezioneId
+            ) {
+
+                newErrors.ispezione =
+                    "L'ispezione è obbligatoria";
+
+            }
 
 
+            if (!formData.timestamp) {
 
-        setFormData({
+                newErrors.timestamp =
+                    "Il timestamp è obbligatorio";
 
-
-            ...formData,
-
-
-            [name]:value
+            }
 
 
-        });
+            if (!formData.note.trim()) {
 
+                newErrors.note =
+                    "Le note sono obbligatorie";
+
+            }
+
+        }
+
+
+        // =========================
+        // ESEGUITA
+        // =========================
+
+
+        if (
+            formData.stato ===
+            "ESEGUITA"
+        ) {
+
+            if (
+                !formData
+                    .ispezione
+                    ?.ispezioneId
+            ) {
+
+                newErrors.ispezione =
+                    "L'ispezione è obbligatoria";
+
+            }
+
+
+            if (!formData.timestamp) {
+
+                newErrors.timestamp =
+                    "Il timestamp è obbligatorio";
+
+            }
+
+        }
+
+
+        // =========================
+        // NON ESEGUIBILE
+        // =========================
+
+
+        if (
+            formData.stato ===
+            "NON_ESEGUIBILE"
+        ) {
+
+            if (
+                !formData
+                    .ispezione
+                    ?.ispezioneId
+            ) {
+
+                newErrors.ispezione =
+                    "L'ispezione è obbligatoria";
+
+            }
+
+
+            if (!formData.note.trim()) {
+
+                newErrors.note =
+                    "Il motivo della mancata esecuzione è obbligatorio";
+
+            }
+
+        }
+
+
+        // =========================
+        // SPOSTATA
+        // =========================
+
+
+        if (
+            formData.stato ===
+            "SPOSTATA"
+        ) {
+
+            if (!formData.note.trim()) {
+
+                newErrors.note =
+                    "Le note sono obbligatorie";
+
+            }
+
+
+            if (
+                !formData
+                    .spostatoElemento
+                    ?.elementoId
+            ) {
+
+                newErrors.spostatoElemento =
+                    "Seleziona l'elemento di destinazione";
+
+            }
+
+
+            if (
+                formData
+                    .spostatoElemento
+                    ?.elementoId
+
+                ===
+
+                formData
+                    .elemento
+                    .elementoId
+            ) {
+
+                newErrors.spostatoElemento =
+                    "L'elemento di destinazione deve essere diverso da quello di origine";
+
+            }
+
+        }
+
+
+        return newErrors;
 
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-    function handleIspezioneChange(e){
-
-
-
-        const value =
-            e.target.value;
-
-
-
-
-        setFormData({
-
-
-
-            ...formData,
-
-
-
-            ispezione:
-
-
-                value
-
-                    ?
-
-                    {
-
-                        ispezioneId:Number(value)
-
-                    }
-
-                    :
-
-                    null
-
-
-        });
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    function handleElementoSpostatoChange(e){
-
-
-
-        const value =
-            e.target.value;
-
-
-
-
-
-        setFormData({
-
-
-            ...formData,
-
-
-            spostatoElemento:
-
-
-                value
-
-                    ?
-
-                    {
-
-                        elementoId:Number(value)
-
-                    }
-
-                    :
-
-                    null
-
-
-
-        });
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    async function handleSubmit(e){
-
-
+    // =========================
+    // SUBMIT
+    // =========================
+
+    async function handleSubmit(e) {
 
         e.preventDefault();
 
 
+        const newErrors =
+            validate();
 
-        setError("");
+
+        setErrors(
+            newErrors
+        );
+
 
         setSuccess("");
 
+        setServerError("");
 
 
-
-
-
-
-
-
-        if(
-
-            [
-
-                "ESEGUITA",
-
-                "AGGIUNTA_IN_SITO",
-
-                "NON_ESEGUIBILE",
-
-                "SPOSTATA"
-
-            ].includes(formData.stato)
-
-
-            &&
-
-
-            !formData.ispezione
-
-        ){
-
-
-
-            setError(
-
-                "Seleziona una ispezione"
-
-            );
-
-
+        if (
+            Object.keys(newErrors).length > 0
+        ) {
 
             return;
-
 
         }
 
 
+        try {
 
+            setLoading(true);
 
 
-
-
-
-
-
-        if(
-
-            [
-
-                "ESEGUITA",
-
-                "AGGIUNTA_IN_SITO",
-
-                "NON_ESEGUIBILE",
-
-                "SPOSTATA"
-
-            ].includes(formData.stato)
-
-
-            &&
-
-
-            !formData.timestamp
-
-        ){
-
-
-
-            setError(
-
-                "Inserisci la data di esecuzione"
-
-            );
-
-
-
-            return;
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-        if(
-
-            [
-
-                "AGGIUNTA_IN_SITO",
-
-                "NON_ESEGUIBILE",
-
-                "SPOSTATA"
-
-            ].includes(formData.stato)
-
-
-            &&
-
-
-            !formData.note.trim()
-
-        ){
-
-
-
-            setError(
-
-                "Inserisci le note obbligatorie"
-
-            );
-
-
-
-            return;
-
-
-        }
-
-
-
-
-
-
-
-
-
-        if(
-
-            formData.stato === "SPOSTATA"
-
-            &&
-
-            !formData.spostatoElemento
-
-        ){
-
-
-
-            setError(
-
-                "Seleziona elemento destinazione"
-
-            );
-
-
-
-            return;
-
-
-        }
-
-
-
-
-
-
-
-
-
-        try{
-
-
-
-            const esecuzioneDaSalvare = {
-
-
-
+            const payload = {
 
                 numero:
-
                     Number(formData.numero),
 
 
-
                 stato:
-
                 formData.stato,
 
 
-
                 puntoPrevisto:
-
                 formData.puntoPrevisto,
 
 
-
                 note:
-
                 formData.note,
-
-
 
 
                 timestamp:
 
-                    formData.timestamp || null,
+                    formData.timestamp
+
+                        ? formData.timestamp
+
+                        : null,
 
 
-
-
+                // FOTO PIANO
 
                 fotoPiano1:
-
                 formData.fotoPiano1,
 
-
                 fotoPiano2:
-
                 formData.fotoPiano2,
 
-
                 fotoPiano3:
-
                 formData.fotoPiano3,
 
 
-
-
-
+                // FOTO CANTIERE
 
                 fotoCantiere1:
-
                 formData.fotoCantiere1,
 
-
                 fotoCantiere2:
-
                 formData.fotoCantiere2,
 
 
-
-
-
+                // GPS
 
                 latitudine:
 
-                    formData.latitudine || null,
+                    formData.latitudine !== ""
+
+                        ? Number(formData.latitudine)
+
+                        : null,
 
 
                 longitudine:
 
-                    formData.longitudine || null,
+                    formData.longitudine !== ""
+
+                        ? Number(formData.longitudine)
+
+                        : null,
 
 
-
-
-
+                // RELAZIONI
 
                 pianoIndagine:
-
                 formData.pianoIndagine,
 
 
-
                 prova:
-
                 formData.prova,
 
 
-
                 elemento:
-
                 formData.elemento,
 
 
-
-
-
                 ispezione:
-
                 formData.ispezione,
 
 
-
                 spostatoElemento:
-
                 formData.spostatoElemento
-
 
             };
 
 
-
-
-
-
-
-
-
             await updateEsecuzione(
-
 
                 formData.esecuzioneId,
 
-
-                esecuzioneDaSalvare
-
+                payload
 
             );
-
-
-
-
-
-
-
-
 
 
             setSuccess(
 
-                "Prova salvata correttamente"
+                "✅ Prova modificata correttamente"
 
             );
 
 
-
-
-
-
-
-
-
-            setTimeout(()=>{
-
+            setTimeout(() => {
 
                 navigate(
 
@@ -1060,853 +880,1500 @@ function EditEsecuzionePage(){
 
                 );
 
-
-            },700);
-
+            }, 1000);
 
 
+        } catch (error) {
+
+            console.error(error);
 
 
+            setServerError(
 
-
-
-
-        }catch(err){
-
-
-
-            console.error(err);
-
-
-
-            setError(
-
-                "Errore durante il salvataggio"
+                "❌ Errore durante la modifica della prova"
 
             );
 
 
+        } finally {
+
+            setLoading(false);
 
         }
-
-
-
-    }     if(!formData){
-
-
-        return(
-
-
-            <MainLayout>
-
-
-                Caricamento...
-
-
-            </MainLayout>
-
-
-        );
-
 
     }
 
 
+    // =========================
+    // CARICAMENTO
+    // =========================
 
+    if (loadingData) {
 
+        return (
 
+            <MainLayout>
 
+                <div style={styles.loading}>
 
+                    Caricamento...
 
+                </div>
 
-    const mostraData =
-
-
-        [
-
-            "ESEGUITA",
-
-            "AGGIUNTA_IN_SITO",
-
-            "NON_ESEGUIBILE",
-
-            "SPOSTATA"
-
-
-        ].includes(
-
-            formData.stato
+            </MainLayout>
 
         );
 
+    }
 
 
+    if (!formData) {
 
+        return (
 
+            <MainLayout>
 
+                <div style={styles.serverError}>
 
+                    {serverError || "Prova non disponibile"}
 
+                </div>
 
-
-    const mostraCantiere =
-
-
-        [
-
-            "ESEGUITA",
-
-            "AGGIUNTA_IN_SITO"
-
-
-        ].includes(
-
-            formData.stato
+            </MainLayout>
 
         );
 
+    }
 
 
+    // =========================
+    // STATO CORRENTE
+    // =========================
+
+    const isPrevista =
+        formData.stato === "PREVISTA";
 
 
+    const isAggiuntaInSito =
+        formData.stato === "AGGIUNTA_IN_SITO";
 
 
+    const isEseguita =
+        formData.stato === "ESEGUITA";
 
 
-
-    const mostraGps =
-
-
-        [
-
-            "ESEGUITA",
-
-            "AGGIUNTA_IN_SITO"
+    const isNonEseguibile =
+        formData.stato === "NON_ESEGUIBILE";
 
 
-        ].includes(
-
-            formData.stato
-
-        );
-
-
-
-
-
-
-
-
-
-    const mostraSpostata =
-
-
+    const isSpostata =
         formData.stato === "SPOSTATA";
 
 
+    // =========================
+    // VISIBILITÀ
+    // =========================
 
 
+    const mostraIspezione =
+
+        isPrevista
+
+        ||
+
+        isAggiuntaInSito
+
+        ||
+
+        isEseguita
+
+        ||
+
+        isNonEseguibile;
 
 
+    const ispezioneObbligatoria =
 
+        isAggiuntaInSito
+
+        ||
+
+        isEseguita
+
+        ||
+
+        isNonEseguibile;
+
+
+    const mostraTimestamp =
+
+        isAggiuntaInSito
+
+        ||
+
+        isEseguita
+
+        ||
+
+        isNonEseguibile;
+
+
+    const timestampObbligatorio =
+
+        isAggiuntaInSito
+
+        ||
+
+        isEseguita;
+
+
+    const mostraFotoCantiere =
+
+        isAggiuntaInSito
+
+        ||
+
+        isEseguita;
+
+
+    const mostraGps =
+        isEseguita;
 
 
     const noteObbligatorie =
 
+        isAggiuntaInSito
 
-        [
+        ||
 
-            "AGGIUNTA_IN_SITO",
+        isNonEseguibile
 
-            "NON_ESEGUIBILE",
+        ||
 
-            "SPOSTATA"
+        isSpostata;
 
 
-        ].includes(
+    // =========================
+    // ELEMENTO ORIGINE
+    // =========================
 
-            formData.stato
+    const elementoOrigine =
+
+        elementi.find(
+
+            elemento =>
+
+                elemento.elementoId
+
+                ===
+
+                formData.elemento.elementoId
 
         );
 
 
+    // =========================
+    // RENDER
+    // =========================
 
-
-
-
-
-
-
-
-
-    return(
-
-
+    return (
 
         <MainLayout>
 
 
-
-
-
-
-            <div style={styles.header}>
-
+            <div style={styles.container}>
 
 
                 <Link
 
                     style={styles.backButton}
 
-                    to={`/esecuzione/${formData.esecuzioneId}`}
+                    to={
+                        `/esecuzione/${formData.esecuzioneId}`
+                    }
 
                 >
 
-
                     ← Torna alla prova
-
 
                 </Link>
 
 
+                <form
+
+                    style={styles.card}
+
+                    onSubmit={handleSubmit}
+
+                >
 
 
-
-                <h1 style={styles.title}>
-
-
-                    Modifica prova
+                    {/* HEADER */}
 
 
-                </h1>
+                    <div>
+
+                        <h1 style={styles.title}>
+
+                            Modifica prova
+
+                        </h1>
 
 
+                        <p style={styles.subtitle}>
 
+                            Aggiorna i dati e lo stato della prova.
+
+                        </p>
+
+                    </div>
+
+
+                    {/* ========================= */}
+                    {/* DATI DELLA PROVA */}
+                    {/* ========================= */}
+
+
+                    <SectionTitle>
+
+                        Dati della prova
+
+                    </SectionTitle>
+
+
+                    <div style={styles.grid}>
+
+
+                        <div style={styles.group}>
+
+                            <label style={styles.label}>
+
+                                Numero prova *
+
+                            </label>
+
+
+                            <input
+
+                                style={styles.input}
+
+                                type="number"
+
+                                min="1"
+
+                                name="numero"
+
+                                value={
+                                    formData.numero
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                            />
+
+
+                            <FieldError
+                                message={errors.numero}
+                            />
+
+                        </div>
+
+
+                        <div style={styles.group}>
+
+                            <label style={styles.label}>
+
+                                Stato *
+
+                            </label>
+
+
+                            <select
+
+                                style={styles.input}
+
+                                value={
+                                    formData.stato
+                                }
+
+                                onChange={
+                                    handleStatoChange
+                                }
+
+                            >
+
+                                <option value="PREVISTA">
+
+                                    Prevista
+
+                                </option>
+
+
+                                <option value="AGGIUNTA_IN_SITO">
+
+                                    Aggiunta in sito
+
+                                </option>
+
+
+                                <option value="ESEGUITA">
+
+                                    Eseguita
+
+                                </option>
+
+
+                                <option value="NON_ESEGUIBILE">
+
+                                    Non eseguibile
+
+                                </option>
+
+
+                                <option value="SPOSTATA">
+
+                                    Spostata
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    {/* ELEMENTO ORIGINE */}
+
+
+                    <div style={styles.group}>
+
+                        <label style={styles.label}>
+
+                            {
+
+                                isSpostata
+
+                                    ? "Elemento di origine"
+
+                                    : "Elemento"
+
+                            }
+
+                        </label>
+
+
+                        <input
+
+                            style={styles.readOnlyInput}
+
+                            value={
+
+                                elementoOrigine
+
+                                    ? `${elementoOrigine.codice} - Campata ${elementoOrigine.campata}`
+
+                                    : `Elemento ${formData.elemento.elementoId}`
+
+                            }
+
+                            disabled
+
+                        />
+
+                    </div>
+
+
+                    {/* PUNTO PREVISTO */}
+
+
+                    <InputField
+
+                        label="Punto previsto *"
+
+                        name="puntoPrevisto"
+
+                        value={
+                            formData.puntoPrevisto
+                        }
+
+                        onChange={
+                            handleChange
+                        }
+
+                        error={
+                            errors.puntoPrevisto
+                        }
+
+                    />
+
+
+                    {/* ========================= */}
+                    {/* SPOSTAMENTO */}
+                    {/* ========================= */}
+
+
+                    {
+                        isSpostata && (
+
+                            <>
+
+                                <SectionTitle>
+
+                                    Spostamento della prova
+
+                                </SectionTitle>
+
+
+                                <div style={styles.moveGrid}>
+
+
+                                    <div style={styles.group}>
+
+                                        <label style={styles.label}>
+
+                                            Da elemento
+
+                                        </label>
+
+
+                                        <input
+
+                                            style={styles.readOnlyInput}
+
+                                            value={
+
+                                                elementoOrigine
+
+                                                    ? `${elementoOrigine.codice} - Campata ${elementoOrigine.campata}`
+
+                                                    : "Elemento origine"
+
+                                            }
+
+                                            disabled
+
+                                        />
+
+                                    </div>
+
+
+                                    <div style={styles.arrow}>
+
+                                        →
+
+                                    </div>
+
+
+                                    <div style={styles.group}>
+
+                                        <label style={styles.label}>
+
+                                            A elemento *
+
+                                        </label>
+
+
+                                        <select
+
+                                            style={styles.input}
+
+                                            value={
+
+                                                formData
+                                                    .spostatoElemento
+                                                    ?.elementoId
+
+                                                ||
+
+                                                ""
+
+                                            }
+
+                                            onChange={
+                                                handleElementoSpostatoChange
+                                            }
+
+                                        >
+
+                                            <option value="">
+
+                                                Seleziona destinazione
+
+                                            </option>
+
+
+                                            {
+                                                elementi.map(elemento => (
+
+                                                    <option
+
+                                                        key={
+                                                            elemento.elementoId
+                                                        }
+
+                                                        value={
+                                                            elemento.elementoId
+                                                        }
+
+                                                    >
+
+                                                        {elemento.codice}
+
+                                                        {" - Campata "}
+
+                                                        {elemento.campata}
+
+                                                    </option>
+
+                                                ))
+                                            }
+
+                                        </select>
+
+
+                                        <FieldError
+
+                                            message={
+                                                errors.spostatoElemento
+                                            }
+
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                            </>
+
+                        )
+                    }
+
+
+                    {/* ========================= */}
+                    {/* ISPEZIONE */}
+                    {/* ========================= */}
+
+
+                    {
+                        mostraIspezione && (
+
+                            <>
+
+                                <SectionTitle>
+
+                                    Ispezione
+
+                                </SectionTitle>
+
+
+                                <div style={styles.group}>
+
+                                    <label style={styles.label}>
+
+                                        {
+
+                                            ispezioneObbligatoria
+
+                                                ? "Ispezione associata *"
+
+                                                : "Ispezione associata"
+
+                                        }
+
+                                    </label>
+
+
+                                    <select
+
+                                        style={styles.input}
+
+                                        value={
+
+                                            formData
+                                                .ispezione
+                                                ?.ispezioneId
+
+                                            ||
+
+                                            ""
+
+                                        }
+
+                                        onChange={
+                                            handleIspezioneChange
+                                        }
+
+                                    >
+
+                                        <option value="">
+
+                                            Nessuna ispezione selezionata
+
+                                        </option>
+
+
+                                        {
+                                            ispezioni.map(ispezione => (
+
+                                                <option
+
+                                                    key={
+                                                        ispezione.ispezioneId
+                                                    }
+
+                                                    value={
+                                                        ispezione.ispezioneId
+                                                    }
+
+                                                >
+
+                                                    {
+                                                        ispezione.titoloIspezione
+                                                    }
+
+                                                </option>
+
+                                            ))
+                                        }
+
+                                    </select>
+
+
+                                    <FieldError
+                                        message={errors.ispezione}
+                                    />
+
+                                </div>
+
+                            </>
+
+                        )
+                    }
+
+
+                    {/* ========================= */}
+                    {/* TIMESTAMP */}
+                    {/* ========================= */}
+
+
+                    {
+                        mostraTimestamp && (
+
+                            <>
+
+                                <SectionTitle>
+
+                                    Dati temporali
+
+                                </SectionTitle>
+
+
+                                <InputField
+
+                                    label={
+
+                                        timestampObbligatorio
+
+                                            ? "Timestamp esecuzione *"
+
+                                            : "Timestamp esecuzione"
+
+                                    }
+
+                                    name="timestamp"
+
+                                    type="datetime-local"
+
+                                    value={
+                                        formData.timestamp
+                                    }
+
+                                    onChange={
+                                        handleChange
+                                    }
+
+                                    error={
+                                        errors.timestamp
+                                    }
+
+                                />
+
+                            </>
+
+                        )
+                    }
+
+
+                    {/* ========================= */}
+                    {/* FOTO PIANO */}
+                    {/* ========================= */}
+
+
+                    <SectionTitle>
+
+                        Foto della prova
+
+                    </SectionTitle>
+
+
+                    <p style={styles.helperText}>
+
+                        Immagini previste dal piano di indagine.
+
+                    </p>
+
+
+                    <div style={styles.grid}>
+
+
+                        <InputField
+
+                            label="Foto piano"
+
+                            name="fotoPiano1"
+
+                            value={
+                                formData.fotoPiano1
+                            }
+
+                            onChange={
+                                handleChange
+                            }
+
+                        />
+
+
+                        <InputField
+
+                            label="Foto sezione"
+
+                            name="fotoPiano2"
+
+                            value={
+                                formData.fotoPiano2
+                            }
+
+                            onChange={
+                                handleChange
+                            }
+
+                        />
+
+
+                        <InputField
+
+                            label="Foto realistica"
+
+                            name="fotoPiano3"
+
+                            value={
+                                formData.fotoPiano3
+                            }
+
+                            onChange={
+                                handleChange
+                            }
+
+                        />
+
+                    </div>
+
+
+                    {/* ========================= */}
+                    {/* FOTO CANTIERE */}
+                    {/* ========================= */}
+
+
+                    {
+                        mostraFotoCantiere && (
+
+                            <>
+
+                                <SectionTitle>
+
+                                    Foto di cantiere
+
+                                </SectionTitle>
+
+
+                                <div style={styles.grid}>
+
+
+                                    <InputField
+
+                                        label="Foto cantiere 1"
+
+                                        name="fotoCantiere1"
+
+                                        value={
+                                            formData.fotoCantiere1
+                                        }
+
+                                        onChange={
+                                            handleChange
+                                        }
+
+                                    />
+
+
+                                    <InputField
+
+                                        label="Foto cantiere 2"
+
+                                        name="fotoCantiere2"
+
+                                        value={
+                                            formData.fotoCantiere2
+                                        }
+
+                                        onChange={
+                                            handleChange
+                                        }
+
+                                    />
+
+                                </div>
+
+                            </>
+
+                        )
+                    }
+
+
+                    {/* ========================= */}
+                    {/* GPS */}
+                    {/* ========================= */}
+
+
+                    {
+                        mostraGps && (
+
+                            <>
+
+                                <SectionTitle>
+
+                                    Posizione GPS
+
+                                </SectionTitle>
+
+
+                                <p style={styles.helperText}>
+
+                                    Coordinate opzionali del punto di esecuzione.
+
+                                </p>
+
+
+                                <div style={styles.grid}>
+
+
+                                    <InputField
+
+                                        label="Latitudine"
+
+                                        name="latitudine"
+
+                                        type="number"
+
+                                        value={
+                                            formData.latitudine
+                                        }
+
+                                        onChange={
+                                            handleChange
+                                        }
+
+                                    />
+
+
+                                    <InputField
+
+                                        label="Longitudine"
+
+                                        name="longitudine"
+
+                                        type="number"
+
+                                        value={
+                                            formData.longitudine
+                                        }
+
+                                        onChange={
+                                            handleChange
+                                        }
+
+                                    />
+
+                                </div>
+
+                            </>
+
+                        )
+                    }
+
+
+                    {/* ========================= */}
+                    {/* NOTE */}
+                    {/* ========================= */}
+
+
+                    <SectionTitle>
+
+                        Note
+
+                    </SectionTitle>
+
+
+                    <div style={styles.group}>
+
+                        <label style={styles.label}>
+
+                            {
+
+                                isNonEseguibile
+
+                                    ? "Motivo della mancata esecuzione *"
+
+                                    : noteObbligatorie
+
+                                        ? "Note *"
+
+                                        : "Note"
+
+                            }
+
+                        </label>
+
+
+                        <textarea
+
+                            style={styles.textarea}
+
+                            name="note"
+
+                            value={
+                                formData.note
+                            }
+
+                            onChange={
+                                handleChange
+                            }
+
+                        />
+
+
+                        <FieldError
+                            message={errors.note}
+                        />
+
+                    </div>
+
+
+                    {/* ========================= */}
+                    {/* BUTTON */}
+                    {/* ========================= */}
+
+
+                    <button
+
+                        type="submit"
+
+                        style={styles.button}
+
+                        disabled={loading}
+
+                    >
+
+                        {
+
+                            loading
+
+                                ? "Salvataggio..."
+
+                                : "Salva modifiche"
+
+                        }
+
+                    </button>
+
+
+                    {/* ========================= */}
+                    {/* MESSAGGI */}
+                    {/* ========================= */}
+
+
+                    {
+                        success && (
+
+                            <div style={styles.success}>
+
+                                {success}
+
+                            </div>
+
+                        )
+                    }
+
+
+                    {
+                        serverError && (
+
+                            <div style={styles.serverError}>
+
+                                {serverError}
+
+                            </div>
+
+                        )
+                    }
+
+
+                </form>
 
 
             </div>
 
 
-
-
-
-
-
-
-
-
-
-            {error &&
-
-
-                <p style={styles.error}>
-
-
-                    {error}
-
-
-                </p>
-
-
-            }
-
-
-
-
-
-
-
-
-            {success &&
-
-
-                <p style={styles.success}>
-
-
-                    {success}
-
-
-                </p>
-
-
-            }
-
-
-
-
-
-
-
-
-
-            <form
-
-                style={styles.card}
-
-                onSubmit={handleSubmit}
-
-            >
-
-
-
-
-
-
-
-
-
-                <label style={styles.label}>
-
-                    Stato
-
-                </label>
-
-
-
-
-
-                <select
-
-                    style={styles.input}
-
-                    name="stato"
-
-                    value={formData.stato}
-
-                    onChange={handleChange}
-
-                >
-
-
-                    <option value="PREVISTA">
-                        Prevista
-                    </option>
-
-
-                    <option value="ESEGUITA">
-                        Eseguita
-                    </option>
-
-
-                    <option value="AGGIUNTA_IN_SITO">
-                        Aggiunta in sito
-                    </option>
-
-
-                    <option value="NON_ESEGUIBILE">
-                        Non eseguibile
-                    </option>
-
-
-                    <option value="SPOSTATA">
-                        Spostata
-                    </option>
-
-
-                </select>
-
-
-
-
-
-
-
-
-
-                <label style={styles.label}>
-
-                    Numero prova
-
-                </label>
-
-
-                <input
-
-                    style={styles.input}
-
-                    name="numero"
-
-                    value={formData.numero}
-
-                    onChange={handleChange}
-
-                />
-
-
-
-
-
-
-
-
-
-
-                <label style={styles.label}>
-
-                    Punto previsto
-
-                </label>
-
-
-
-                <input
-
-                    style={styles.input}
-
-                    name="puntoPrevisto"
-
-                    value={formData.puntoPrevisto}
-
-                    onChange={handleChange}
-
-                />
-
-
-
-
-
-
-
-
-
-
-                {mostraData &&
-
-
-                    <>
-
-
-                        <label style={styles.label}>
-
-
-                            Data esecuzione *
-
-
-                        </label>
-
-
-
-                        <input
-
-                            style={styles.input}
-
-                            type="datetime-local"
-
-                            name="timestamp"
-
-                            value={formData.timestamp}
-
-                            onChange={handleChange}
-
-                        />
-
-
-                    </>
-
-
-                }
-
-
-
-
-
-
-
-
-
-
-
-                <label style={styles.label}>
-
-
-                    {
-
-                        noteObbligatorie
-
-                            ?
-
-                            "Note *"
-
-                            :
-
-                            "Note"
-
-                    }
-
-
-                </label>
-
-
-
-
-
-                <textarea
-
-                    style={styles.textarea}
-
-                    name="note"
-
-                    value={formData.note}
-
-                    onChange={handleChange}
-
-                />
-
-
-
-
-
-
-
-
-
-
-
-                <label style={styles.label}>
-
-
-                    {
-
-                        formData.stato !== "PREVISTA"
-
-                            ?
-
-                            "Ispezione associata *"
-
-                            :
-
-                            "Ispezione associata"
-
-                    }
-
-
-                </label>
-
-
-
-
-
-                <select
-
-                    style={styles.input}
-
-                    value={
-
-                        formData.ispezione?.ispezioneId || ""
-
-                    }
-
-                    onChange={handleIspezioneChange}
-
-                >
-
-
-
-                    <option value="">
-
-                        Nessuna
-
-                    </option>
-
-
-
-
-
-
-                    {ispezioni.map(i=>(
-
-
-                        <option
-
-                            key={i.ispezioneId}
-
-                            value={i.ispezioneId}
-
-                        >
-
-
-                            {i.titoloIspezione}
-
-
-                        </option>
-
-
-                    ))}
-
-
-
-                </select>
-
-
-
-
-
-
-
-
-
-                {mostraSpostata &&
-
-
-                    <>
-
-
-                        <label style={styles.label}>
-
-
-                            Spostata su elemento *
-
-
-                        </label>
-
-
-
-
-                        <select
-
-                            style={styles.input}
-
-                            value={
-
-                                formData.spostatoElemento?.elementoId || ""
-
-                            }
-
-                            onChange={handleElementoSpostatoChange}
-
-                        >
-
-
-                            <option value="">
-
-                                Seleziona elemento
-
-                            </option>
-
-
-
-
-
-                            {elementi.map(el=>(
-
-
-                                <option
-
-                                    key={el.elementoId}
-
-                                    value={el.elementoId}
-
-                                >
-
-
-                                    {el.codice} - {el.campata}
-
-
-                                </option>
-
-
-                            ))}
-
-
-
-                        </select>
-
-
-                    </>
-
-
-                }
-
-
-
-
-
-
-
-
-
-
-                {mostraGps &&
-
-
-                    <>
-
-
-                        <label style={styles.label}>
-
-                            Posizione GPS
-
-                        </label>
-
-
-
-                        <input
-
-                            style={styles.input}
-
-                            name="latitudine"
-
-                            placeholder="Latitudine"
-
-                            value={formData.latitudine}
-
-                            onChange={handleChange}
-
-                        />
-
-
-
-                        <input
-
-                            style={styles.input}
-
-                            name="longitudine"
-
-                            placeholder="Longitudine"
-
-                            value={formData.longitudine}
-
-                            onChange={handleChange}
-
-                        />
-
-
-                    </>
-
-
-                }
-
-
-
-
-
-
-
-
-
-
-
-                <label style={styles.label}>
-
-
-                    Foto piano
-
-
-                </label>
-
-
-
-
-                <input
-
-                    style={styles.input}
-
-                    name="fotoPiano1"
-
-                    value={formData.fotoPiano1}
-
-                    onChange={handleChange}
-
-                />
-
-
-
-                <input
-
-                    style={styles.input}
-
-                    name="fotoPiano2"
-
-                    value={formData.fotoPiano2}
-
-                    onChange={handleChange}
-
-                />
-
-
-
-
-
-
-
-
-
-                {mostraCantiere &&
-
-
-                    <>
-
-
-                        <label style={styles.label}>
-
-
-                            Foto cantiere
-
-
-                        </label>
-
-
-
-                        <input
-
-                            style={styles.input}
-
-                            name="fotoCantiere1"
-
-                            value={formData.fotoCantiere1}
-
-                            onChange={handleChange}
-
-                        />
-
-
-                    </>
-
-
-                }
-
-
-
-
-
-
-
-
-
-
-                <button
-
-                    style={styles.button}
-
-                >
-
-
-                    Salva prova
-
-
-                </button>
-
-
-
-
-
-
-
-
-            </form>
-
-
-
-
-
         </MainLayout>
-
-
 
     );
 
+}
+
+
+// =========================
+// SECTION TITLE
+// =========================
+
+function SectionTitle({
+                          children
+                      }) {
+
+    return (
+
+        <div style={styles.sectionHeader}>
+
+            <h2 style={styles.sectionTitle}>
+
+                {children}
+
+            </h2>
+
+        </div>
+
+    );
 
 }
 
+
+// =========================
+// INPUT FIELD
+// =========================
+
+function InputField({
+
+                        label,
+                        name,
+                        value,
+                        onChange,
+                        error,
+                        type = "text"
+
+                    }) {
+
+    return (
+
+        <div style={styles.group}>
+
+            <label style={styles.label}>
+
+                {label}
+
+            </label>
+
+
+            <input
+
+                style={styles.input}
+
+                type={type}
+
+                name={name}
+
+                value={value}
+
+                onChange={onChange}
+
+                step={
+                    type === "number"
+                        ? "any"
+                        : undefined
+                }
+
+            />
+
+
+            <FieldError
+                message={error}
+            />
+
+        </div>
+
+    );
+
+}
+
+
+// =========================
+// FIELD ERROR
+// =========================
+
+function FieldError({
+                        message
+                    }) {
+
+    if (!message) {
+
+        return null;
+
+    }
+
+
+    return (
+
+        <p style={styles.fieldError}>
+
+            {message}
+
+        </p>
+
+    );
+
+}
+
+
+// =========================
+// STYLES
+// =========================
+
+const styles = {
+
+    container: {
+
+        maxWidth: "900px",
+
+        margin: "0 auto",
+
+        display: "flex",
+
+        flexDirection: "column",
+
+        gap: "18px",
+
+        paddingBottom: "120px"
+
+    },
+
+
+    card: {
+
+        background: "#ffffff",
+
+        padding: "24px",
+
+        borderRadius: "18px",
+
+        border: "1px solid #e2e8f0",
+
+        boxShadow:
+            "0 4px 12px rgba(15,23,42,0.05)",
+
+        display: "flex",
+
+        flexDirection: "column",
+
+        gap: "20px"
+
+    },
+
+
+    backButton: {
+
+        width: "fit-content",
+
+        backgroundColor: "#ffffff",
+
+        color: "#1e293b",
+
+        padding: "10px 14px",
+
+        borderRadius: "10px",
+
+        textDecoration: "none",
+
+        border: "1px solid #e2e8f0",
+
+        fontWeight: "600"
+
+    },
+
+
+    title: {
+
+        margin: 0,
+
+        fontSize: "32px",
+
+        fontWeight: "700",
+
+        color: "#1e293b"
+
+    },
+
+
+    subtitle: {
+
+        marginTop: "6px",
+
+        marginBottom: 0,
+
+        color: "#64748b"
+
+    },
+
+
+    sectionHeader: {
+
+        borderBottom:
+            "1px solid #e2e8f0",
+
+        paddingBottom: "8px",
+
+        marginTop: "4px"
+
+    },
+
+
+    sectionTitle: {
+
+        margin: 0,
+
+        color: "#334155",
+
+        fontSize: "16px",
+
+        fontWeight: "700"
+
+    },
+
+
+    helperText: {
+
+        margin: "-10px 0 0 0",
+
+        color: "#64748b",
+
+        fontSize: "13px"
+
+    },
+
+
+    grid: {
+
+        display: "grid",
+
+        gridTemplateColumns:
+            "repeat(auto-fit,minmax(240px,1fr))",
+
+        gap: "18px"
+
+    },
+
+
+    moveGrid: {
+
+        display: "grid",
+
+        gridTemplateColumns:
+            "1fr auto 1fr",
+
+        alignItems: "end",
+
+        gap: "16px"
+
+    },
+
+
+    arrow: {
+
+        paddingBottom: "14px",
+
+        fontSize: "24px",
+
+        fontWeight: "700",
+
+        color: "#64748b"
+
+    },
+
+
+    group: {
+
+        display: "flex",
+
+        flexDirection: "column",
+
+        gap: "8px"
+
+    },
+
+
+    label: {
+
+        fontWeight: "700",
+
+        color: "#475569",
+
+        fontSize: "13px"
+
+    },
+
+
+    input: {
+
+        height: "48px",
+
+        padding: "0 14px",
+
+        borderRadius: "10px",
+
+        border: "1px solid #cbd5e1",
+
+        boxSizing: "border-box",
+
+        width: "100%",
+
+        background: "#ffffff",
+
+        outline: "none"
+
+    },
+
+
+    readOnlyInput: {
+
+        height: "48px",
+
+        padding: "0 14px",
+
+        borderRadius: "10px",
+
+        border: "1px solid #cbd5e1",
+
+        boxSizing: "border-box",
+
+        width: "100%",
+
+        background: "#f8fafc",
+
+        color: "#475569"
+
+    },
+
+
+    textarea: {
+
+        padding: "14px",
+
+        minHeight: "130px",
+
+        borderRadius: "10px",
+
+        border: "1px solid #cbd5e1",
+
+        boxSizing: "border-box",
+
+        width: "100%",
+
+        resize: "vertical"
+
+    },
+
+
+    button: {
+
+        height: "50px",
+
+        borderRadius: "10px",
+
+        border: "none",
+
+        backgroundColor: "#1e293b",
+
+        color: "#ffffff",
+
+        fontWeight: "700",
+
+        cursor: "pointer",
+
+        fontSize: "15px"
+
+    },
+
+
+    success: {
+
+        background: "#dcfce7",
+
+        color: "#166534",
+
+        padding: "12px",
+
+        borderRadius: "10px",
+
+        fontWeight: "600"
+
+    },
+
+
+    serverError: {
+
+        background: "#fee2e2",
+
+        color: "#991b1b",
+
+        padding: "12px",
+
+        borderRadius: "10px",
+
+        fontWeight: "600"
+
+    },
+
+
+    fieldError: {
+
+        color: "#dc2626",
+
+        fontSize: "13px",
+
+        margin: 0
+
+    },
+
+
+    loading: {
+
+        padding: "30px",
+
+        color: "#64748b"
+
+    }
+
+};
 
 
 export default EditEsecuzionePage;

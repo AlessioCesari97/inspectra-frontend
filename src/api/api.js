@@ -1,6 +1,6 @@
 const BASE_URL =
-    "https://inspectra-backend-gw9h.onrender.com";
-
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8081";
 
 
 
@@ -867,45 +867,68 @@ export function getElementoById(id){
 
 
 
-export function createElemento(elemento){
+// =========================
+// CREA ELEMENTO
+// =========================
 
+export function createElemento(elemento, immagine = null) {
+
+    const formData = new FormData();
+
+
+    // Parte JSON.
+    // Deve essere application/json perché il backend usa:
+    // @RequestPart("elemento") Elemento elemento
+
+    const elementoBlob = new Blob(
+
+        [JSON.stringify(elemento)],
+
+        {
+            type: "application/json"
+        }
+
+    );
+
+
+    formData.append(
+        "elemento",
+        elementoBlob
+    );
+
+
+    // Immagine opzionale
+
+    if (immagine) {
+
+        formData.append(
+            "immagine",
+            immagine
+        );
+
+    }
 
 
     return request(
 
         "/elementi",
 
-
         {
+            method: "POST",
 
-            method:"POST",
-
-
-            headers:{
-
-                "Content-Type":
-                    "application/json"
-
-            },
-
-
-
-            body:
-
-                JSON.stringify(elemento)
-
-
+            body: formData
         }
-
 
     );
 
-
-
-
-
-
 }
+
+
+
+
+
+
+
 
 export function getElementi(){
 
@@ -921,7 +944,44 @@ export function getElementi(){
 
 }
 
-export function updateElemento(id,elemento){
+// =========================
+// MODIFICA ELEMENTO
+// =========================
+
+export function updateElemento(
+    id,
+    elemento,
+    immagine = null
+) {
+
+    const formData = new FormData();
+
+
+    const elementoBlob = new Blob(
+
+        [JSON.stringify(elemento)],
+
+        {
+            type: "application/json"
+        }
+
+    );
+
+
+    formData.append(
+        "elemento",
+        elementoBlob
+    );
+
+
+    if (immagine) {
+
+        formData.append(
+            "immagine",
+            immagine
+        );
+
+    }
 
 
     return request(
@@ -929,18 +989,9 @@ export function updateElemento(id,elemento){
         `/elementi/${id}`,
 
         {
+            method: "PUT",
 
-            method:"PUT",
-
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-            body:
-                JSON.stringify(elemento)
-
+            body: formData
         }
 
     );

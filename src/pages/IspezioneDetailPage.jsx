@@ -1,4 +1,7 @@
-import { useEffect, useState }
+import {
+    useEffect,
+    useState
+}
     from "react";
 
 
@@ -13,7 +16,9 @@ import MainLayout
     from "../layouts/MainLayout";
 
 
-import { getIspezioneById }
+import {
+    getIspezioneById
+}
     from "../api/api";
 
 
@@ -22,43 +27,30 @@ import IspezioneEsecuzioniSection
 
 
 
-
-
-
-
-
-
 function IspezioneDetailPage(){
-
 
 
     const { id } =
         useParams();
 
 
-
-
     const [ispezione,setIspezione] =
         useState(null);
 
 
+    const [loading,setLoading] =
+        useState(true);
 
 
-
+    const [error,setError] =
+        useState("");
 
 
     useEffect(()=>{
 
-
         loadIspezione();
 
-
     },[id]);
-
-
-
-
-
 
 
 
@@ -68,19 +60,37 @@ function IspezioneDetailPage(){
         try{
 
 
+            setError("");
+
+
             const data =
                 await getIspezioneById(id);
 
 
-
             setIspezione(data);
-
 
 
         }catch(error){
 
 
             console.error(error);
+
+
+            setError(
+
+                error.message
+
+                ||
+
+                "Errore durante il caricamento dell'ispezione"
+
+            );
+
+
+        }finally{
+
+
+            setLoading(false);
 
 
         }
@@ -90,21 +100,18 @@ function IspezioneDetailPage(){
 
 
 
-
-
-
-
-
-
-    if(!ispezione){
-
+    if(loading){
 
 
         return(
 
             <MainLayout>
 
-                Caricamento...
+                <div style={styles.messageBox}>
+
+                    Caricamento...
+
+                </div>
 
             </MainLayout>
 
@@ -115,8 +122,33 @@ function IspezioneDetailPage(){
 
 
 
+    if(error || !ispezione){
 
 
+        return(
+
+            <MainLayout>
+
+                <div style={styles.errorBox}>
+
+                    {
+
+                        error
+
+                        ||
+
+                        "Ispezione non trovata"
+
+                    }
+
+                </div>
+
+            </MainLayout>
+
+        );
+
+
+    }
 
 
 
@@ -124,15 +156,9 @@ function IspezioneDetailPage(){
         ispezione.stato;
 
 
-
-
-
     const mostraLavori =
 
         stato !== "BOZZA";
-
-
-
 
 
     const mostraFirme =
@@ -148,10 +174,6 @@ function IspezioneDetailPage(){
         stato === "ARCHIVIATA";
 
 
-
-
-
-
     const mostraReport =
 
         stato === "FIRMATA"
@@ -162,193 +184,94 @@ function IspezioneDetailPage(){
 
 
 
-
-
-
-
-
-
     return(
-
 
 
         <MainLayout>
 
 
-
-
             <div style={styles.container}>
-
-
-
-
-
 
 
                 <Link
 
-
                     to="/ispezioni"
-
 
                     style={styles.backButton}
 
-
                 >
-
 
                     ← Torna alle ispezioni
 
-
                 </Link>
-
-
-
-
-
-
-
 
 
 
                 <div style={styles.card}>
 
 
-
-
-
-
-
-
-
                     <div style={styles.header}>
-
-
-
-
-
-
 
 
                         <div>
 
 
-
                             <h1 style={styles.title}>
 
-
                                 {ispezione.titoloIspezione}
-
 
                             </h1>
 
 
-
-
-
-
                             <p style={styles.subtitle}>
-
 
                                 Dettaglio ispezione
 
-
                             </p>
-
-
 
 
                         </div>
 
 
 
+                        <div style={styles.headerActions}>
 
 
+                            {
 
-
-
-
-
-                        {
-
-
-                            stato !== "ARCHIVIATA"
-
-
-                                ?
-
+                                stato !== "ARCHIVIATA" &&
 
 
                                 <Link
 
-
                                     to={`/ispezione/${id}/edit`}
-
 
                                     style={styles.editButton}
 
-
                                 >
-
 
                                     Modifica
 
-
                                 </Link>
 
+                            }
 
 
+                            <div style={styles.statusBadge}>
+
+                                {stato}
+
+                            </div>
 
 
-                                :
-
-
-
-
-
-                                <div style={styles.archivedBox}>
-
-
-                                    Ispezione archiviata - sola consultazione
-
-
-                                </div>
-
-
-                        }
-
-
-
-
-
+                        </div>
 
 
                     </div>
 
 
 
-
-
-
-
                     <div style={styles.grid}>
-
-
-
-
-
-                        <Info
-
-                            label="Stato"
-
-                            value={ispezione.stato}
-
-                        />
-
-
-
-
-
 
 
                         <Info
@@ -358,12 +281,6 @@ function IspezioneDetailPage(){
                             value={ispezione.dataIspezione}
 
                         />
-
-
-
-
-
-
 
 
                         <Info
@@ -376,15 +293,7 @@ function IspezioneDetailPage(){
 
 
 
-
-
-
-
-
-
-
                         <div style={styles.box}>
-
 
 
                             <div style={styles.label}>
@@ -394,41 +303,26 @@ function IspezioneDetailPage(){
                             </div>
 
 
-
-
-
-
                             {
 
                                 ispezione.assetId
 
-
                                     ?
-
 
                                     <Link
 
-
                                         to={`/asset/${ispezione.assetId}`}
-
 
                                         style={styles.link}
 
-
                                     >
 
-
                                         {ispezione.assetNome}
-
 
                                     </Link>
 
 
-
-
                                     :
-
-
 
 
                                     <div style={styles.value}>
@@ -437,29 +331,14 @@ function IspezioneDetailPage(){
 
                                     </div>
 
-
                             }
-
-
-
-
 
 
                         </div>
 
 
 
-
-
-
-
-
-
-
-
-
                         <div style={styles.box}>
-
 
 
                             <div style={styles.label}>
@@ -469,41 +348,26 @@ function IspezioneDetailPage(){
                             </div>
 
 
-
-
-
-
                             {
 
                                 ispezione.pianoId
 
-
                                     ?
-
 
                                     <Link
 
-
                                         to={`/piano/${ispezione.pianoId}`}
-
 
                                         style={styles.link}
 
-
                                     >
 
-
                                         {ispezione.codicePiano}
-
 
                                     </Link>
 
 
-
-
                                     :
-
-
 
 
                                     <div style={styles.value}>
@@ -512,34 +376,13 @@ function IspezioneDetailPage(){
 
                                     </div>
 
-
                             }
-
-
-
-
 
 
                         </div>
 
 
-
-
-
-
-
                     </div>
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -551,16 +394,7 @@ function IspezioneDetailPage(){
 
 
 
-
-
-
-
-
                     <div style={styles.grid}>
-
-
-
-
 
 
                         <Info
@@ -572,12 +406,6 @@ function IspezioneDetailPage(){
                         />
 
 
-
-
-
-
-
-
                         <Info
 
                             label="Ingegnere"
@@ -585,12 +413,6 @@ function IspezioneDetailPage(){
                             value={ispezione.ingegnere}
 
                         />
-
-
-
-
-
-
 
 
                         <Info
@@ -602,24 +424,7 @@ function IspezioneDetailPage(){
                         />
 
 
-
-
-
-
-
                     </div>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -638,20 +443,7 @@ function IspezioneDetailPage(){
                             </h3>
 
 
-
-
-
-
-
-
-
                             <div style={styles.grid}>
-
-
-
-
-
-
 
 
                                 <Info
@@ -663,12 +455,6 @@ function IspezioneDetailPage(){
                                 />
 
 
-
-
-
-
-
-
                                 <Info
 
                                     label="Inizio lavori"
@@ -676,12 +462,6 @@ function IspezioneDetailPage(){
                                     value={ispezione.inizioLavori}
 
                                 />
-
-
-
-
-
-
 
 
                                 <Info
@@ -693,31 +473,12 @@ function IspezioneDetailPage(){
                                 />
 
 
-
-
-
-
-
                             </div>
-
 
 
                         </>
 
-
                     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -729,7 +490,6 @@ function IspezioneDetailPage(){
                         <>
 
 
-
                             <h3>
 
                                 Firme
@@ -737,20 +497,7 @@ function IspezioneDetailPage(){
                             </h3>
 
 
-
-
-
-
-
-
-
                             <div style={styles.grid}>
-
-
-
-
-
-
 
 
                                 <Info
@@ -762,12 +509,6 @@ function IspezioneDetailPage(){
                                 />
 
 
-
-
-
-
-
-
                                 <Info
 
                                     label="Firma ingegnere"
@@ -775,13 +516,6 @@ function IspezioneDetailPage(){
                                     value={ispezione.firmaIngegnere}
 
                                 />
-
-
-
-
-
-
-
 
 
                                 <Info
@@ -793,30 +527,12 @@ function IspezioneDetailPage(){
                                 />
 
 
-
-
-
-
-
                             </div>
-
-
 
 
                         </>
 
-
                     }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -828,7 +544,6 @@ function IspezioneDetailPage(){
                         <div>
 
 
-
                             <h3>
 
                                 Report finale
@@ -836,12 +551,7 @@ function IspezioneDetailPage(){
                             </h3>
 
 
-
-
-
-
                             <p style={styles.text}>
-
 
                                 {
 
@@ -853,28 +563,16 @@ function IspezioneDetailPage(){
 
                                 }
 
-
                             </p>
 
 
-
-
                         </div>
-
 
                     }
 
 
 
-
-
-
-
-
-
                     <div>
-
-
 
 
                         <h3>
@@ -884,12 +582,7 @@ function IspezioneDetailPage(){
                         </h3>
 
 
-
-
-
-
                         <p style={styles.text}>
-
 
                             {
 
@@ -901,33 +594,13 @@ function IspezioneDetailPage(){
 
                             }
 
-
                         </p>
-
-
-
 
 
                     </div>
 
 
-
-
-
-
-
-
-
                 </div>
-
-
-
-
-
-
-
-
-
 
 
 
@@ -935,26 +608,15 @@ function IspezioneDetailPage(){
 
                     ispezione={ispezione}
 
+                    onIspezioneChanged={loadIspezione}
+
                 />
-
-
-
-
-
-
-
 
 
             </div>
 
 
-
-
-
-
         </MainLayout>
-
-
 
 
     );
@@ -965,49 +627,27 @@ function IspezioneDetailPage(){
 
 
 
-
-
-
-
-
-
 function Info({label,value}){
 
 
     return(
 
 
-
         <div style={styles.box}>
-
-
-
 
 
             <div style={styles.label}>
 
-
                 {label}
 
-
             </div>
-
-
-
-
-
 
 
             <div style={styles.value}>
 
-
                 {value || "-"}
 
-
             </div>
-
-
-
 
 
         </div>
@@ -1016,9 +656,11 @@ function Info({label,value}){
     );
 
 
-} const styles = {
+}
 
 
+
+const styles = {
 
 
     container: {
@@ -1036,14 +678,6 @@ function Info({label,value}){
         paddingBottom:"120px"
 
     },
-
-
-
-
-
-
-
-
 
 
     card: {
@@ -1069,22 +703,13 @@ function Info({label,value}){
     },
 
 
-
-
-
-
-
-
-
-
-
     header: {
 
         display:"flex",
 
         justifyContent:"space-between",
 
-        alignItems:"center",
+        alignItems:"flex-start",
 
         flexWrap:"wrap",
 
@@ -1093,13 +718,19 @@ function Info({label,value}){
     },
 
 
+    headerActions: {
 
+        display:"flex",
 
+        alignItems:"center",
 
+        justifyContent:"flex-end",
 
+        gap:"12px",
 
+        flexWrap:"wrap"
 
-
+    },
 
 
     title: {
@@ -1115,17 +746,9 @@ function Info({label,value}){
     },
 
 
-
-
-
-
-
-
-
-
     subtitle: {
 
-        margin:0,
+        margin:"6px 0 0 0",
 
         color:"#64748b",
 
@@ -1134,12 +757,25 @@ function Info({label,value}){
     },
 
 
+    statusBadge: {
 
+        backgroundColor:"#f1f5f9",
 
+        color:"#475569",
 
+        border:"1px solid #cbd5e1",
 
+        padding:"9px 14px",
 
+        borderRadius:"999px",
 
+        fontSize:"13px",
+
+        fontWeight:"700",
+
+        whiteSpace:"nowrap"
+
+    },
 
 
     backButton: {
@@ -1163,21 +799,13 @@ function Info({label,value}){
     },
 
 
-
-
-
-
-
-
-
-
     editButton: {
 
         backgroundColor:"#ffffff",
 
         color:"#1e293b",
 
-        padding:"11px 16px",
+        padding:"9px 14px",
 
         borderRadius:"10px",
 
@@ -1190,40 +818,6 @@ function Info({label,value}){
         cursor:"pointer"
 
     },
-
-
-
-
-
-
-
-
-
-
-
-    archivedBox: {
-
-        background:"#f1f5f9",
-
-        border:"1px solid #cbd5e1",
-
-        padding:"12px",
-
-        borderRadius:"10px",
-
-        color:"#475569",
-
-        fontWeight:"600"
-
-    },
-
-
-
-
-
-
-
-
 
 
     grid: {
@@ -1239,14 +833,6 @@ function Info({label,value}){
     },
 
 
-
-
-
-
-
-
-
-
     box: {
 
         backgroundColor:"#f8fafc",
@@ -1260,15 +846,6 @@ function Info({label,value}){
     },
 
 
-
-
-
-
-
-
-
-
-
     label: {
 
         color:"#64748b",
@@ -1280,15 +857,6 @@ function Info({label,value}){
     },
 
 
-
-
-
-
-
-
-
-
-
     value: {
 
         marginTop:"6px",
@@ -1298,14 +866,6 @@ function Info({label,value}){
         fontWeight:"600"
 
     },
-
-
-
-
-
-
-
-
 
 
     link: {
@@ -1323,15 +883,6 @@ function Info({label,value}){
     },
 
 
-
-
-
-
-
-
-
-
-
     text: {
 
         margin:0,
@@ -1340,18 +891,52 @@ function Info({label,value}){
 
         lineHeight:"1.6"
 
+    },
+
+
+    messageBox: {
+
+        maxWidth:"1200px",
+
+        margin:"0 auto",
+
+        padding:"20px",
+
+        background:"#f8fafc",
+
+        border:"1px solid #e2e8f0",
+
+        borderRadius:"12px",
+
+        color:"#475569",
+
+        fontWeight:"600"
+
+    },
+
+
+    errorBox: {
+
+        maxWidth:"1200px",
+
+        margin:"0 auto",
+
+        padding:"20px",
+
+        background:"#fef2f2",
+
+        border:"1px solid #fecaca",
+
+        borderRadius:"12px",
+
+        color:"#991b1b",
+
+        fontWeight:"600"
+
     }
 
 
-
-
 };
-
-
-
-
-
-
 
 
 export default IspezioneDetailPage;
