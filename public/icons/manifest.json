@@ -1,0 +1,17 @@
+{
+  "name": "Inspectra",
+  "short_name": "Inspectra",
+  "description": "Applicazione per la gestione di asset, piani di indagine, prove e ispezioni",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f2937",
+  "icons": [
+    {
+      "src": "/icons/inspectra-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
