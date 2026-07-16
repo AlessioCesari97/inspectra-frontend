@@ -60,7 +60,7 @@ function IspezioneEsecuzioniSection({
 
     const navigate = useNavigate();
 
-
+    const [open, setOpen] = useState(false);
 
     const puoGestireProve =
 
@@ -347,40 +347,31 @@ function IspezioneEsecuzioniSection({
         <div style={styles.card}>
 
 
-            <div style={styles.header}>
+            <div
 
+                style={styles.header}
 
-                <div>
+                onClick={() => setOpen(!open)}
 
+            >
 
-                    <h2 style={styles.title}>
+                <h2 style={styles.title}>
 
-                        Prove
+                    {open ? "▼" : "▶"} Prove
 
-                    </h2>
-
-
-                    <p style={styles.subtitle}>
-
-                        Prove associate all'ispezione
-
-                    </p>
-
-
-                </div>
-
-
+                </h2>
 
                 {
 
                     puoGestireProve &&
-
 
                     <Link
 
                         to={`/ispezione/${ispezione.ispezioneId}/nuova-esecuzione`}
 
                         style={styles.addButton}
+
+                        onClick={(e)=>e.stopPropagation()}
 
                     >
 
@@ -389,7 +380,6 @@ function IspezioneEsecuzioniSection({
                     </Link>
 
                 }
-
 
             </div>
 
