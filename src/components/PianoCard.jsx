@@ -37,14 +37,13 @@ const styles = {
 
 
 
-
     header: {
 
         display: "flex",
 
         justifyContent: "space-between",
 
-        alignItems: "center",
+        alignItems: "flex-start",
 
         gap: "15px"
 
@@ -61,7 +60,17 @@ const styles = {
 
         fontSize: "22px",
 
-        fontWeight: "700"
+        fontWeight: "700",
+
+        whiteSpace: "normal",
+
+        wordBreak: "break-word",
+
+        overflowWrap: "anywhere",
+
+        flex: 1,
+
+        lineHeight: "1.3"
 
     },
 
@@ -74,7 +83,9 @@ const styles = {
 
         fontSize: "22px",
 
-        fontWeight: "600"
+        fontWeight: "600",
+
+        flexShrink: 0
 
     },
 

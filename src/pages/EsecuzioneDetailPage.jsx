@@ -1,8 +1,6 @@
-import {
-    useEffect,
-    useState
-}
-    from "react";
+import { useEffect, useState }
+
+from "react";
 
 
 import {
@@ -17,13 +15,12 @@ import MainLayout
 
 
 import {
-    getIspezioneById
+    getEsecuzioneById
 }
     from "../api/api";
 
 
-import IspezioneEsecuzioniSection
-    from "../components/IspezioneEsecuzioniSection";
+
 
 
 
@@ -75,6 +72,7 @@ const styles = {
 
 
 
+
     header: {
 
         display:"flex",
@@ -91,6 +89,7 @@ const styles = {
 
 
 
+
     actions: {
 
         display:"flex",
@@ -100,6 +99,8 @@ const styles = {
         gap:"10px"
 
     },
+
+
 
 
 
@@ -121,6 +122,8 @@ const styles = {
 
 
 
+
+
     subtitle: {
 
         margin:0,
@@ -128,6 +131,7 @@ const styles = {
         color:"#64748b"
 
     },
+
 
 
 
@@ -143,6 +147,9 @@ const styles = {
         gap:"14px"
 
     },
+
+
+
 
 
 
@@ -164,6 +171,9 @@ const styles = {
 
 
 
+
+
+
     label: {
 
         color:"#64748b",
@@ -173,6 +183,9 @@ const styles = {
         fontWeight:"700"
 
     },
+
+
+
 
 
 
@@ -192,6 +205,8 @@ const styles = {
 
 
 
+
+
     link: {
 
         color:"#1e293b",
@@ -201,6 +216,9 @@ const styles = {
         fontWeight:"600"
 
     },
+
+
+
 
 
 
@@ -228,6 +246,8 @@ const styles = {
 
 
 
+
+
     badge: {
 
         backgroundColor:"#f1f5f9",
@@ -243,6 +263,9 @@ const styles = {
         color:"#334155"
 
     },
+
+
+
 
 
 
@@ -266,79 +289,12 @@ const styles = {
 
         fontWeight:"600"
 
-    },
-
-
-
-
-
-    text: {
-
-        margin:0,
-
-        color:"#475569",
-
-        lineHeight:"1.6"
-
-    },
-
-
-
-
-
-    messageBox: {
-
-        maxWidth:"1200px",
-
-        margin:"0 auto",
-
-        padding:"20px",
-
-        background:"#f8fafc",
-
-        border:"1px solid #e2e8f0",
-
-        borderRadius:"12px",
-
-        color:"#475569",
-
-        fontWeight:"600"
-
-    },
-
-
-
-
-
-    errorBox: {
-
-        maxWidth:"1200px",
-
-        margin:"0 auto",
-
-        padding:"20px",
-
-        background:"#fef2f2",
-
-        border:"1px solid #fecaca",
-
-        borderRadius:"12px",
-
-        color:"#991b1b",
-
-        fontWeight:"600"
-
     }
 
 
-};
 
+};function EsecuzioneDetailPage(){
 
-
-
-
-
-function IspezioneDetailPage(){
 
 
     const { id } =
@@ -346,18 +302,11 @@ function IspezioneDetailPage(){
 
 
 
-    const [ispezione,setIspezione] =
+
+    const [esecuzione,setEsecuzione] =
         useState(null);
 
 
-
-    const [loading,setLoading] =
-        useState(true);
-
-
-
-    const [error,setError] =
-        useState("");
 
 
 
@@ -366,7 +315,7 @@ function IspezioneDetailPage(){
     useEffect(()=>{
 
 
-        loadIspezione();
+        loadEsecuzione();
 
 
     },[id]);
@@ -376,21 +325,21 @@ function IspezioneDetailPage(){
 
 
 
-    async function loadIspezione(){
+
+
+
+    async function loadEsecuzione(){
 
 
         try{
 
 
-            setError("");
-
-
             const data =
-                await getIspezioneById(id);
+                await getEsecuzioneById(id);
 
 
 
-            setIspezione(data);
+            setEsecuzione(data);
 
 
 
@@ -398,24 +347,6 @@ function IspezioneDetailPage(){
 
 
             console.error(error);
-
-
-
-            setError(
-
-                error.message
-
-                ||
-
-                "Errore durante il caricamento dell'ispezione"
-
-            );
-
-
-        }finally{
-
-
-            setLoading(false);
 
 
         }
@@ -428,22 +359,19 @@ function IspezioneDetailPage(){
 
 
 
-    if(loading){
+
+
+
+
+    if(!esecuzione){
 
 
         return(
 
-
             <MainLayout>
 
 
-                <div style={styles.messageBox}>
-
-
-                    Caricamento...
-
-
-                </div>
+                Caricamento...
 
 
             </MainLayout>
@@ -459,77 +387,50 @@ function IspezioneDetailPage(){
 
 
 
-    if(error || !ispezione){
 
 
-        return(
 
 
-            <MainLayout>
+
+    const mostraEsecuzione =
 
 
-                <div style={styles.errorBox}>
+        esecuzione.stato === "ESEGUITA"
+
+        ||
+
+        esecuzione.stato === "AGGIUNTA_IN_SITO";
 
 
-                    {
-
-                        error
-
-                        ||
-
-                        "Ispezione non trovata"
-
-                    }
 
 
-                </div>
 
 
-            </MainLayout>
 
+
+    const mostraDatiOperativi =
+
+
+        [
+
+            "ESEGUITA",
+
+            "AGGIUNTA_IN_SITO",
+
+            "NON_ESEGUIBILE",
+
+            "SPOSTATA"
+
+        ].includes(
+
+            esecuzione.stato
 
         );
 
 
-    }
 
 
 
-
-
-
-    const stato =
-        ispezione.stato;
-
-
-
-    const mostraLavori =
-
-        stato !== "BOZZA";
-
-
-
-    const mostraFirme =
-
-        stato === "COMPLETATA"
-
-        ||
-
-        stato === "FIRMATA"
-
-        ||
-
-        stato === "ARCHIVIATA";
-
-
-
-    const mostraReport =
-
-        stato === "FIRMATA"
-
-        ||
-
-        stato === "ARCHIVIATA";
 
 
 
@@ -539,7 +440,10 @@ function IspezioneDetailPage(){
     return(
 
 
+
         <MainLayout>
+
+
 
 
             <div style={styles.container}>
@@ -548,19 +452,24 @@ function IspezioneDetailPage(){
 
 
 
+
                 <Link
 
-                    to="/ispezioni"
+                    to={`/piano/${esecuzione.pianoId}`}
 
                     style={styles.backButton}
 
                 >
 
 
-                    ← Torna alle ispezioni
+                    ← Piano Indagine
 
 
                 </Link>
+
+
+
+
 
 
 
@@ -574,7 +483,12 @@ function IspezioneDetailPage(){
 
 
 
+
+
+
                     <div style={styles.header}>
+
+
 
 
 
@@ -586,7 +500,9 @@ function IspezioneDetailPage(){
                             <h1 style={styles.title}>
 
 
-                                {ispezione.titoloIspezione}
+                                {esecuzione.sigla}
+
+                                {esecuzione.numero}
 
 
                             </h1>
@@ -594,40 +510,80 @@ function IspezioneDetailPage(){
 
 
 
+
                             <p style={styles.subtitle}>
 
 
-                                Dettaglio ispezione
+                                {esecuzione.nomeProva}
 
 
                             </p>
 
 
+
                         </div>
+
+
+
+
+
+
+
+
+
+
 
                         <div style={styles.actions}>
 
-                            {
-                                stato !== "ARCHIVIATA"
-                                &&
-                                <Link
-                                    to={`/ispezione/${id}/edit`}
-                                    style={styles.editButton}
-                                >
-                                    Modifica
-                                </Link>
-                            }
+
+
+
 
                             <div style={styles.badge}>
-                                {ispezione.stato}
+
+
+                                {esecuzione.stato}
+
+
                             </div>
+
+
+
+
+
+
+
+
+                            <Link
+
+                                to={`/esecuzione/${esecuzione.esecuzioneId}/edit`}
+
+                                style={styles.editButton}
+
+                            >
+
+
+                                Modifica
+
+
+                            </Link>
+
+
+
 
                         </div>
 
 
 
 
+
+
                     </div>
+
+
+
+
+
 
 
 
@@ -640,24 +596,11 @@ function IspezioneDetailPage(){
 
 
 
-
                         <Info
 
-                            label="Data"
+                            label="Punto previsto"
 
-                            value={ispezione.dataIspezione}
-
-                        />
-
-
-
-
-
-                        <Info
-
-                            label="Creato da"
-
-                            value={ispezione.createdBy}
+                            value={esecuzione.puntoPrevisto}
 
                         />
 
@@ -666,344 +609,403 @@ function IspezioneDetailPage(){
 
 
 
-                        <Info
 
-                            label="Opera collegata"
+                    </div>                     <div style={styles.grid}>
 
-                            value={
 
-                                ispezione.assetId
 
-                                    ?
 
-                                    <Link
 
-                                        to={`/asset/${ispezione.assetId}`}
 
-                                        style={styles.link}
+                    <Info
 
-                                    >
+                        label="Elemento"
 
+                        value={
 
-                                        {ispezione.assetNome}
+                            esecuzione.elementoId
 
+                                ?
 
-                                    </Link>
+                                <Link
 
+                                    to={`/elemento/${esecuzione.elementoId}`}
 
-                                    :
+                                    style={styles.link}
 
+                                >
 
-                                    "-"
+                                    {esecuzione.codiceElemento}
 
-                            }
+                                </Link>
 
-                        />
 
+                                :
 
 
+                                "-"
 
+                        }
 
+                    />
 
-                        <Info
 
-                            label="Piano collegato"
 
-                            value={
 
-                                ispezione.pianoId
 
-                                    ?
 
-                                    <Link
 
-                                        to={`/piano/${ispezione.pianoId}`}
 
-                                        style={styles.link}
 
-                                    >
+                    <Info
 
+                        label="Campata"
 
-                                        {ispezione.codicePiano}
+                        value={
 
+                            esecuzione.campata
 
-                                    </Link>
+                        }
 
+                    />
 
-                                    :
 
 
-                                    "-"
 
-                            }
 
-                        />
 
 
 
-                    </div>
 
+                    <Info
 
+                        label="Piano indagine"
 
+                        value={
 
+                            esecuzione.pianoId
 
+                                ?
 
+                                <Link
 
-                    <h3>
+                                    to={`/piano/${esecuzione.pianoId}`}
 
+                                    style={styles.link}
 
-                        Personale
+                                >
 
 
-                    </h3>
+                                    {esecuzione.codicePiano}
 
 
+                                </Link>
 
 
+                                :
 
 
-                    <div style={styles.grid}>
+                                "-"
 
+                        }
 
+                    />
 
 
 
-                        <Info
 
-                            label="Operatore prove"
 
-                            value={ispezione.operatoreProve}
 
-                        />
 
 
 
+                    <Info
 
+                        label="Ispezione"
 
-                        <Info
+                        value={
 
-                            label="Ingegnere"
+                            esecuzione.ispezioneId
 
-                            value={ispezione.ingegnere}
+                                ?
 
-                        />
+                                <Link
 
+                                    to={`/ispezione/${esecuzione.ispezioneId}`}
 
+                                    style={styles.link}
 
+                                >
 
 
-                        <Info
+                                    {esecuzione.titoloIspezione}
 
-                            label="Referente concessionaria"
 
-                            value={ispezione.referenteConcessionaria}
+                                </Link>
 
-                        />
 
+                                :
 
 
-                    </div>
+                                "-"
 
+                        }
 
+                    />
 
 
 
 
+                </div>
 
 
-                    {
 
-                        mostraLavori
 
-                        &&
 
 
-                        <>
 
 
-                            <h3>
 
+                    {mostraDatiOperativi &&
 
-                                Attività operative
 
+                        <div style={styles.grid}>
 
-                            </h3>
 
 
 
 
+                            <Info
 
-                            <div style={styles.grid}>
+                                label="Data esecuzione"
 
+                                value={
 
-
-
-
-                                <Info
-
-                                    label="Installazione cantiere"
-
-                                    value={ispezione.installazioneCantiere}
-
-                                />
-
-
-
-
-
-                                <Info
-
-                                    label="Inizio lavori"
-
-                                    value={ispezione.inizioLavori}
-
-                                />
-
-
-
-
-
-                                <Info
-
-                                    label="Fine lavori"
-
-                                    value={ispezione.fineLavori}
-
-                                />
-
-
-
-                            </div>
-
-
-                        </>
-
-                    }
-
-
-
-
-
-
-
-
-                    {
-
-                        mostraFirme
-
-                        &&
-
-
-                        <>
-
-
-                            <h3>
-
-
-                                Firme
-
-
-                            </h3>
-
-
-
-
-
-                            <div style={styles.grid}>
-
-
-
-
-
-                                <Info
-
-                                    label="Firma operatore"
-
-                                    value={ispezione.firmaOperatore}
-
-                                />
-
-
-
-
-
-                                <Info
-
-                                    label="Firma ingegnere"
-
-                                    value={ispezione.firmaIngegnere}
-
-                                />
-
-
-
-
-
-                                <Info
-
-                                    label="Firma concessionaria"
-
-                                    value={ispezione.firmaConcessionaria}
-
-                                />
-
-
-
-                            </div>
-
-
-                        </>
-
-                    }
-
-
-
-
-
-
-
-
-                    {
-
-                        mostraReport
-
-                        &&
-
-
-                        <div>
-
-
-                            <h3>
-
-
-                                Report finale
-
-
-                            </h3>
-
-
-
-
-                            <p style={styles.text}>
-
-
-                                {
-
-                                    ispezione.report
-
-                                    ||
-
-                                    "Nessun report presente"
+                                    esecuzione.timestamp
 
                                 }
 
+                            />
 
-                            </p>
+
+
+
+
+
+
+
+                            <Info
+
+                                label="Posizione"
+
+                                value={
+
+                                    esecuzione.latitudine
+
+                                    &&
+
+                                    esecuzione.longitudine
+
+
+                                        ?
+
+
+                                        `${esecuzione.latitudine}, ${esecuzione.longitudine}`
+
+
+                                        :
+
+
+                                        "-"
+
+                                }
+
+                            />
+
+
+
 
 
                         </div>
 
+
                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <div style={styles.grid}>
+
+
+
+
+
+
+                        <Info
+
+                            label="Foto piano"
+
+                            value={
+
+                                esecuzione.fotoPiano1
+
+                                    ?
+
+                                    "Presente"
+
+                                    :
+
+                                    "-"
+
+                            }
+
+                        />
+
+
+
+
+
+
+
+
+                        <Info
+
+                            label="Foto sezione"
+
+                            value={
+
+                                esecuzione.fotoPiano2
+
+                                    ?
+
+                                    "Presente"
+
+                                    :
+
+                                    "-"
+
+                            }
+
+                        />
+
+
+
+
+
+
+
+
+
+                        <Info
+
+                            label="Foto realistica"
+
+                            value={
+
+                                esecuzione.fotoPiano3
+
+                                    ?
+
+                                    "Presente"
+
+                                    :
+
+                                    "-"
+
+                            }
+
+                        />
+
+
+
+
+                    </div>
+
+
+
+
+
+
+
+
+
+                    {mostraEsecuzione &&
+
+
+
+                        <div style={styles.grid}>
+
+
+
+
+
+                            <Info
+
+                                label="Foto cantiere 1"
+
+                                value={
+
+                                    esecuzione.fotoCantiere1
+
+                                        ?
+
+                                        "Presente"
+
+                                        :
+
+                                        "-"
+
+                                }
+
+                            />
+
+
+
+
+
+
+
+
+                            <Info
+
+                                label="Foto cantiere 2"
+
+                                value={
+
+                                    esecuzione.fotoCantiere2
+
+                                        ?
+
+                                        "Presente"
+
+                                        :
+
+                                        "-"
+
+                                }
+
+                            />
+
+
+
+
+
+
+                        </div>
+
+
+                    }
+
+
 
 
 
@@ -1016,25 +1018,23 @@ function IspezioneDetailPage(){
 
                         <h3>
 
-
-                            Annotazioni
-
+                            Note
 
                         </h3>
 
 
 
-
-                        <p style={styles.text}>
+                        <p>
 
 
                             {
 
-                                ispezione.annotazioniAggiuntive
+                                esecuzione.note
 
                                 ||
 
-                                "Nessuna annotazione presente"
+                                "Nessuna nota presente"
+
 
                             }
 
@@ -1042,7 +1042,11 @@ function IspezioneDetailPage(){
                         </p>
 
 
+
                     </div>
+
+
+
 
 
 
@@ -1052,20 +1056,8 @@ function IspezioneDetailPage(){
 
 
 
-
-
-
-                <IspezioneEsecuzioniSection
-
-                    ispezione={ispezione}
-
-                    onIspezioneChanged={loadIspezione}
-
-                />
-
-
-
             </div>
+
 
 
         </MainLayout>
@@ -1081,13 +1073,18 @@ function IspezioneDetailPage(){
 
 
 
+
+
+
 function Info({label,value}){
+
 
 
     return(
 
 
         <div style={styles.box}>
+
 
 
             <div style={styles.label}>
@@ -1101,6 +1098,7 @@ function Info({label,value}){
 
 
 
+
             <div style={styles.value}>
 
 
@@ -1108,6 +1106,7 @@ function Info({label,value}){
 
 
             </div>
+
 
 
         </div>
@@ -1122,4 +1121,7 @@ function Info({label,value}){
 
 
 
-export default IspezioneDetailPage;
+
+
+
+export default EsecuzioneDetailPage;

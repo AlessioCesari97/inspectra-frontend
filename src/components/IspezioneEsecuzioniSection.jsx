@@ -6,7 +6,8 @@ import {
 
 
 import {
-    Link
+    Link,
+    useNavigate
 }
     from "react-router-dom";
 
@@ -58,9 +59,15 @@ function IspezioneEsecuzioniSection({
     const [associandoId,setAssociandoId] =
         useState(null);
 
+    const navigate = useNavigate();
 
 
-    const isInCorso =
+
+    const puoGestireProve =
+
+        ispezione.stato === "BOZZA"
+
+        ||
 
         ispezione.stato === "IN_CORSO";
 
@@ -69,7 +76,7 @@ function IspezioneEsecuzioniSection({
     useEffect(()=>{
 
 
-        if(isInCorso){
+        if(puoGestireProve){
 
 
             loadDisponibili();
@@ -369,7 +376,7 @@ function IspezioneEsecuzioniSection({
 
                 {
 
-                    isInCorso &&
+                    puoGestireProve &&
 
 
                     <Link
@@ -420,9 +427,7 @@ function IspezioneEsecuzioniSection({
             }
 
 
-
             <div style={styles.filters}>
-
 
                 <input
 
@@ -440,54 +445,47 @@ function IspezioneEsecuzioniSection({
 
                 />
 
+            </div>
 
-                <select
+            <div style={styles.label}>
 
-                    value={ordine}
-
-                    onChange={
-
-                        e => setOrdine(e.target.value)
-
-                    }
-
-                    style={styles.select}
-
-                >
-
-
-                    <option value="numero">
-
-                        Numero prova
-
-                    </option>
-
-
-                    <option value="nomeProva">
-
-                        Nome prova
-
-                    </option>
-
-
-                    <option value="codiceElemento">
-
-                        Elemento
-
-                    </option>
-
-
-                    <option value="stato">
-
-                        Stato
-
-                    </option>
-
-
-                </select>
-
+                Ordina per:
 
             </div>
+
+            <select
+
+                value={ordine}
+
+                onChange={
+
+                    e => setOrdine(e.target.value)
+
+                }
+
+                style={styles.select}
+
+            >
+
+                <option value="numero">
+
+                    Ordina per numero
+
+                </option>
+
+                <option value="nomeProva">
+
+                    Ordina per prova
+
+                </option>
+
+                <option value="stato">
+
+                    Ordina per stato
+
+                </option>
+
+            </select>
 
 
 
@@ -631,7 +629,14 @@ function IspezioneEsecuzioniSection({
                             prove.map(p=>(
 
 
-                                <tr key={p.esecuzioneId}>
+                                <tr
+                                    key={p.esecuzioneId}
+                                    style={{
+                                        ...styles.td,
+                                        cursor: "pointer"
+                                    }}
+                                    onClick={() => navigate(`/esecuzione/${p.esecuzioneId}`)}
+                                >
 
 
                                     <td style={styles.td}>
@@ -649,21 +654,7 @@ function IspezioneEsecuzioniSection({
 
 
                                     <td style={styles.td}>
-
-
-                                        <Link
-
-                                            to={`/esecuzione/${p.esecuzioneId}`}
-
-                                            style={styles.link}
-
-                                        >
-
-                                            {p.nomeProva}
-
-                                        </Link>
-
-
+                                        {p.nomeProva}
                                     </td>
 
 
@@ -707,7 +698,7 @@ function IspezioneEsecuzioniSection({
 
             {
 
-                isInCorso &&
+                puoGestireProve&&
 
 
                 <>
@@ -926,6 +917,15 @@ const styles = {
         color:"#64748b",
 
         fontSize:"14px"
+
+    },
+    label:{
+
+        color:"#64748b",
+
+        fontSize:"12px",
+
+        fontWeight:"700"
 
     },
 
