@@ -11,7 +11,8 @@ import MainLayout from "../layouts/MainLayout";
 import {
     createIspezione,
     getAssets,
-    getAssetById
+    getAssetById,
+    getPianoById
 } from "../api/api";
 
 
@@ -20,7 +21,10 @@ function CreateIspezionePage() {
 
     const navigate = useNavigate();
 
-    const { assetId } = useParams();
+    const {
+        assetId,
+        pianoId
+    } = useParams();
 
 
     const [assets, setAssets] =
@@ -75,7 +79,8 @@ function CreateIspezionePage() {
 
             pianoIndagine: {
 
-                pianoId: ""
+                pianoId:
+                    pianoId || ""
 
             }
 
@@ -92,6 +97,58 @@ function CreateIspezionePage() {
     async function loadData() {
 
         try {
+
+            // =========================
+            // CREAZIONE DA PIANO
+            // =========================
+
+            if (pianoId) {
+
+                const piano =
+                    await getPianoById(
+                        pianoId
+                    );
+
+                setAssetNome(
+                    piano.assetNome
+                );
+
+                setIspezione(prev => ({
+
+                    ...prev,
+
+                    asset: {
+
+                        assetId: piano.assetId
+
+                    },
+
+                    pianoIndagine: {
+
+                        pianoId: piano.pianoId
+
+                    }
+
+                }));
+
+
+                const asset =
+                    await getAssetById(
+                        piano.assetId
+                    );
+
+                setPiani(
+                    asset.piani || []
+                );
+
+                return;
+
+            }
+
+
+            // =========================
+            // CREAZIONE DA ASSET
+            // =========================
 
             if (assetId) {
 
@@ -110,19 +167,25 @@ function CreateIspezionePage() {
                     asset.piani || []
                 );
 
-            } else {
-
-                const data =
-                    await getAssets();
-
-
-                setAssets(
-                    data
-                );
+                return;
 
             }
 
-        } catch (error) {
+
+            // =========================
+            // CREAZIONE DAL MENU
+            // =========================
+
+            const data =
+                await getAssets();
+
+            setAssets(
+                data
+            );
+
+        }
+
+        catch (error) {
 
             console.error(error);
 
@@ -448,7 +511,7 @@ function CreateIspezionePage() {
 
                         {
 
-                            !assetId
+                            !assetId && !pianoId
 
                                 ?
 
@@ -516,54 +579,76 @@ function CreateIspezionePage() {
                         }
 
 
-                        <SelectField
+                        {
+                            pianoId
 
-                            label="Piano di indagine"
+                                ?
 
-                            value={
-                                ispezione
-                                    .pianoIndagine
-                                    .pianoId
-                            }
+                                <InputField
 
-                            onChange={
-                                handlePianoChange
-                            }
+                                    label="Piano di indagine"
 
-                        >
+                                    value={
+                                        piani.find(
 
-                            <option value="">
+                                            p =>
 
-                                Nessun piano di indagine
+                                                p.pianoId ===
+                                                Number(ispezione.pianoIndagine.pianoId)
 
-                            </option>
+                                        )?.codicePiano || ""
 
+                                    }
 
-                            {
+                                    disabled
 
-                                piani.map((piano) => (
+                                />
 
-                                    <option
+                                :
 
-                                        key={
-                                            piano.pianoId
-                                        }
+                                <SelectField
 
-                                        value={
-                                            piano.pianoId
-                                        }
+                                    label="Piano di indagine"
 
-                                    >
+                                    value={
+                                        ispezione.pianoIndagine.pianoId
+                                    }
 
-                                        {piano.codicePiano}
+                                    onChange={
+                                        handlePianoChange
+                                    }
+
+                                >
+
+                                    <option value="">
+
+                                        Nessun piano di indagine
 
                                     </option>
 
-                                ))
+                                    {
 
-                            }
+                                        piani.map((piano) => (
 
-                        </SelectField>
+                                            <option
+
+                                                key={piano.pianoId}
+
+                                                value={piano.pianoId}
+
+                                            >
+
+                                                {piano.codicePiano}
+
+                                            </option>
+
+                                        ))
+
+                                    }
+
+                                </SelectField>
+
+                        }
 
 
                         <InputField

@@ -254,7 +254,7 @@ function PianoEsecuzioniSection({ piano }){
 
 
     const [ordine,setOrdine] =
-        useState("numero");
+        useState("sigla");
 
 
 
@@ -347,14 +347,17 @@ function PianoEsecuzioniSection({ piano }){
             .sort((a,b)=>{
 
 
-                if(ordine === "numero"){
+                if (ordine === "sigla") {
 
+                    const chiaveA =
 
-                    return (a.numero || 0)
+                        `${a.sigla || ""}${String(a.numero || "").padStart(3,"0")}`;
 
-                        -
+                    const chiaveB =
 
-                        (b.numero || 0);
+                        `${b.sigla || ""}${String(b.numero || "").padStart(3,"0")}`;
+
+                    return chiaveA.localeCompare(chiaveB);
 
                 }
 
@@ -575,8 +578,8 @@ function PianoEsecuzioniSection({ piano }){
                     >
 
 
-                        <option value="numero">
-                            Ordina per numero
+                        <option value="sigla">
+                            Ordina per sigla
                         </option>
 
 

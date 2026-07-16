@@ -55,7 +55,6 @@ function IspezioneEsecuzioniSection({
     const [error,setError] =
         useState("");
 
-
     const [associandoId,setAssociandoId] =
         useState(null);
 
@@ -306,19 +305,17 @@ function IspezioneEsecuzioniSection({
     prove.sort((a,b)=>{
 
 
-        if(ordine === "numero"){
+        if (ordine === "sigla") {
 
+            const siglaA =
 
-            return (
+                `${a.sigla || ""}${String(a.numero || "").padStart(3, "0")}`;
 
-                (a.numero || 0)
+            const siglaB =
 
-                -
+                `${b.sigla || ""}${String(b.numero || "").padStart(3, "0")}`;
 
-                (b.numero || 0)
-
-            );
-
+            return siglaA.localeCompare(siglaB);
 
         }
 
@@ -467,9 +464,9 @@ function IspezioneEsecuzioniSection({
 
             >
 
-                <option value="numero">
+                <option value="sigla">
 
-                    Ordina per numero
+                    Ordina per sigla
 
                 </option>
 
@@ -613,6 +610,12 @@ function IspezioneEsecuzioniSection({
 
                             </th>
 
+                            <th style={styles.th}>
+
+                                Azioni
+
+                            </th>
+
 
                         </tr>
 
@@ -675,6 +678,84 @@ function IspezioneEsecuzioniSection({
                                     <td style={styles.td}>
 
                                         {p.stato}
+
+                                    </td>
+
+                                    <td style={styles.td}>
+
+                                        <div style={styles.actions}>
+
+                                            <button
+
+                                                style={styles.actionButton}
+
+                                                title="Segna come eseguita"
+
+                                                onClick={(e) => {
+
+                                                    e.stopPropagation();
+
+                                                    alert("Qui inseriremo la conferma ESEGUITA");
+
+                                                }}
+
+                                            >
+
+                                                ✔
+
+                                            </button>
+
+
+                                            <button
+
+                                                style={styles.actionButton}
+
+                                                title="Non eseguibile"
+
+                                                onClick={(e) => {
+
+                                                    e.stopPropagation();
+
+                                                    navigate(
+
+                                                        `/esecuzione/${p.esecuzioneId}/edit?azione=non_eseguibile`
+
+                                                    );
+
+                                                }}
+
+                                            >
+
+                                                ✖
+
+                                            </button>
+
+
+                                            <button
+
+                                                style={styles.actionButton}
+
+                                                title="Spostata"
+
+                                                onClick={(e) => {
+
+                                                    e.stopPropagation();
+
+                                                    navigate(
+
+                                                        `/esecuzione/${p.esecuzioneId}/edit?azione=spostata`
+
+                                                    );
+
+                                                }}
+
+                                            >
+
+                                                ↺
+
+                                            </button>
+
+                                        </div>
 
                                     </td>
 
@@ -1224,7 +1305,40 @@ const styles = {
 
         fontWeight:"600"
 
-    }
+    },
+
+    actions:{
+
+        display:"flex",
+
+        gap:"8px",
+
+        justifyContent:"center"
+
+    },
+
+
+    actionButton:{
+
+        width:"34px",
+
+        height:"34px",
+
+        borderRadius:"50%",
+
+        border:"1px solid #cbd5e1",
+
+        background:"#ffffff",
+
+        cursor:"pointer",
+
+        fontWeight:"700",
+
+        fontSize:"16px",
+
+        transition:"0.2s"
+
+    },
 
 
 };
