@@ -1,5 +1,5 @@
 const BASE_URL =
-    "http://localhost:8081";
+    "https://inspectra-backend-gw9h.onrender.com";
 
 
 
