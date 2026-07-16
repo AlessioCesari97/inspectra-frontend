@@ -383,8 +383,8 @@ function IspezioneEsecuzioniSection({
 
             </div>
 
-
-
+            {open && (
+                <>
             {
 
                 success &&
@@ -917,8 +917,8 @@ function IspezioneEsecuzioniSection({
                 </>
 
             }
-
-
+</>
+)}
         </div>
 
 
