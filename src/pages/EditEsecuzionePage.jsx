@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import {
     useParams,
@@ -56,6 +56,34 @@ function EditEsecuzionePage() {
     const [loadingData, setLoadingData] =
         useState(true);
 
+    const [fotoPiano1File, setFotoPiano1File] = useState(null);
+
+    const [fotoPiano2File, setFotoPiano2File] = useState(null);
+
+    const [fotoPiano3File, setFotoPiano3File] = useState(null);
+
+    const [fotoCantiere1File, setFotoCantiere1File] = useState(null);
+
+    const [fotoCantiere2File, setFotoCantiere2File] = useState(null);
+
+    const galleryPiano1Ref = useRef(null);
+    const galleryPiano2Ref = useRef(null);
+    const galleryPiano3Ref = useRef(null);
+
+    const cameraPiano3Ref = useRef(null);
+
+    const galleryCantiere1Ref = useRef(null);
+    const galleryCantiere2Ref = useRef(null);
+
+    const cameraCantiere1Ref = useRef(null);
+    const cameraCantiere2Ref = useRef(null);
+
+    const [previewFotoPiano1, setPreviewFotoPiano1] = useState(null);
+    const [previewFotoPiano2, setPreviewFotoPiano2] = useState(null);
+    const [previewFotoPiano3, setPreviewFotoPiano3] = useState(null);
+
+    const [previewFotoCantiere1, setPreviewFotoCantiere1] = useState(null);
+    const [previewFotoCantiere2, setPreviewFotoCantiere2] = useState(null);
 
     // =========================
     // CARICAMENTO
@@ -133,25 +161,6 @@ function EditEsecuzionePage() {
                         : "",
 
 
-                // FOTO PIANO
-
-                fotoPiano1:
-                    esecuzione.fotoPiano1 || "",
-
-                fotoPiano2:
-                    esecuzione.fotoPiano2 || "",
-
-                fotoPiano3:
-                    esecuzione.fotoPiano3 || "",
-
-
-                // FOTO CANTIERE
-
-                fotoCantiere1:
-                    esecuzione.fotoCantiere1 || "",
-
-                fotoCantiere2:
-                    esecuzione.fotoCantiere2 || "",
 
 
                 // GPS
@@ -218,6 +227,12 @@ function EditEsecuzionePage() {
 
             });
 
+            setPreviewFotoPiano1(esecuzione.fotoPiano1);
+            setPreviewFotoPiano2(esecuzione.fotoPiano2);
+            setPreviewFotoPiano3(esecuzione.fotoPiano3);
+            setPreviewFotoCantiere1(esecuzione.fotoCantiere1);
+            setPreviewFotoCantiere2(esecuzione.fotoCantiere2);
+
 
         } catch (error) {
 
@@ -236,6 +251,8 @@ function EditEsecuzionePage() {
         }
 
     }
+
+
 
 
     // =========================
@@ -260,6 +277,46 @@ function EditEsecuzionePage() {
 
 
         clearError(name);
+
+    }
+
+    function handleImageChange(file, setFile, setPreview) {
+
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("Seleziona un'immagine");
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            alert("Immagine troppo grande");
+            return;
+        }
+
+        setFile(file);
+
+        setPreview(URL.createObjectURL(file));
+
+    }
+
+
+
+    function removeImage(setFile, setPreview, ...refs) {
+
+        setFile(null);
+
+        setPreview(null);
+
+        refs.forEach(ref => {
+
+            if (ref.current) {
+
+                ref.current.value = "";
+
+            }
+
+        });
 
     }
 
@@ -858,9 +915,19 @@ function EditEsecuzionePage() {
 
             await updateEsecuzione(
 
-                formData.esecuzioneId,
+                id,
 
-                payload
+                payload,
+
+                fotoPiano1File,
+
+                fotoPiano2File,
+
+                fotoPiano3File,
+
+                fotoCantiere1File,
+
+                fotoCantiere2File
 
             );
 
@@ -1629,55 +1696,237 @@ function EditEsecuzionePage() {
                     <div style={styles.grid}>
 
 
-                        <InputField
+                        <div style={styles.group}>
 
-                            label="Foto piano"
+                            <label style={styles.label}>
+                                Foto piano 1
+                            </label>
 
-                            name="fotoPiano1"
+                            <input
+                                ref={galleryPiano1Ref}
+                                type="file"
+                                accept="image/*"
+                                style={styles.hiddenInput}
+                                onChange={(e)=>
 
-                            value={
-                                formData.fotoPiano1
+                                    handleImageChange(
+
+                                        e.target.files[0],
+
+                                        setFotoPiano1File,
+
+                                        setPreviewFotoPiano1
+
+                                    )
+
+                                }
+                            />
+
+                            <button
+                                type="button"
+                                style={styles.imageButton}
+                                onClick={()=>galleryPiano1Ref.current.click()}
+                            >
+                                Seleziona immagine
+                            </button>
+
+                            {
+                                previewFotoPiano1 &&
+
+                                <div style={styles.previewContainer}>
+
+                                    <img
+                                        src={previewFotoPiano1}
+                                        alt=""
+                                        style={styles.previewImage}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        style={styles.removeImageButton}
+                                        onClick={()=>removeImage(
+                                            setFotoPiano1File,
+                                            setPreviewFotoPiano1,
+                                            galleryPiano1Ref
+                                        )}
+                                    >
+                                        Rimuovi
+                                    </button>
+
+                                </div>
                             }
 
-                            onChange={
-                                handleChange
-                            }
-
-                        />
+                        </div>
 
 
-                        <InputField
+                        <div style={styles.group}>
 
-                            label="Foto sezione"
+                            <label style={styles.label}>
+                                Foto sezione
+                            </label>
 
-                            name="fotoPiano2"
+                            <div style={styles.imageActions}>
 
-                            value={
-                                formData.fotoPiano2
-                            }
+                                <button
+                                    type="button"
+                                    style={styles.imageButton}
+                                    onClick={() => galleryPiano2Ref.current.click()}
+                                >
+                                    Seleziona immagine
+                                </button>
 
-                            onChange={
-                                handleChange
-                            }
+                            </div>
 
-                        />
+                            <input
+                                ref={galleryPiano2Ref}
+                                type="file"
+                                accept="image/*"
+                                style={styles.hiddenInput}
+                                onChange={(e) =>
+                                    handleImageChange(
+                                        e.target.files[0],
+                                        setFotoPiano2File,
+                                        setPreviewFotoPiano2
+                                    )
+                                }
+                            />
+
+                            {fotoPiano2File && (
+
+                                <div style={styles.selectedFile}>
+
+                                    {fotoPiano2File.name}
+
+                                </div>
+
+                            )}
+
+                            {previewFotoPiano2 && (
+
+                                <div style={styles.previewContainer}>
+
+                                    <img
+                                        src={previewFotoPiano2}
+                                        alt="Foto sezione"
+                                        style={styles.previewImage}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        style={styles.removeImageButton}
+                                        onClick={() =>
+                                            removeImage(
+                                                setFotoPiano2File,
+                                                setPreviewFotoPiano2,
+                                                galleryPiano2Ref
+                                            )
+                                        }
+                                    >
+                                        Rimuovi immagine
+                                    </button>
+
+                                </div>
+
+                            )}
+
+                        </div>
 
 
-                        <InputField
+                        <div style={styles.group}>
 
-                            label="Foto realistica"
+                            <label style={styles.label}>
+                                Foto realistica
+                            </label>
 
-                            name="fotoPiano3"
+                            <div style={styles.imageActions}>
 
-                            value={
-                                formData.fotoPiano3
-                            }
+                                <button
+                                    type="button"
+                                    style={styles.imageButton}
+                                    onClick={() => galleryPiano3Ref.current.click()}
+                                >
+                                    Seleziona immagine
+                                </button>
 
-                            onChange={
-                                handleChange
-                            }
+                                <button
+                                    type="button"
+                                    style={styles.imageButton}
+                                    onClick={() => cameraPiano3Ref.current.click()}
+                                >
+                                    Scatta foto
+                                </button>
 
-                        />
+                            </div>
+
+                            <input
+                                ref={galleryPiano3Ref}
+                                type="file"
+                                accept="image/*"
+                                style={styles.hiddenInput}
+                                onChange={(e)=>
+                                    handleImageChange(
+                                        e.target.files[0],
+                                        setFotoPiano3File,
+                                        setPreviewFotoPiano3
+                                    )
+                                }
+                            />
+
+                            <input
+                                ref={cameraPiano3Ref}
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                style={styles.hiddenInput}
+                                onChange={(e)=>
+                                    handleImageChange(
+                                        e.target.files[0],
+                                        setFotoPiano3File,
+                                        setPreviewFotoPiano3
+                                    )
+                                }
+                            />
+
+                            {fotoPiano3File && (
+
+                                <div style={styles.selectedFile}>
+
+                                    {fotoPiano3File.name}
+
+                                </div>
+
+                            )}
+
+                            {previewFotoPiano3 && (
+
+                                <div style={styles.previewContainer}>
+
+                                    <img
+                                        src={previewFotoPiano3}
+                                        alt="Foto realistica"
+                                        style={styles.previewImage}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        style={styles.removeImageButton}
+                                        onClick={()=>
+                                            removeImage(
+                                                setFotoPiano3File,
+                                                setPreviewFotoPiano3,
+                                                galleryPiano3Ref,
+                                                cameraPiano3Ref
+                                            )
+                                        }
+                                    >
+                                        Rimuovi immagine
+                                    </button>
+
+                                </div>
+
+                            )}
+
+                        </div>
 
                     </div>
 
@@ -1702,38 +1951,198 @@ function EditEsecuzionePage() {
                                 <div style={styles.grid}>
 
 
-                                    <InputField
+                                    <div style={styles.group}>
 
-                                        label="Foto cantiere 1"
+                                        <label style={styles.label}>
+                                            Foto cantiere 1
+                                        </label>
 
-                                        name="fotoCantiere1"
+                                        <div style={styles.imageActions}>
 
-                                        value={
-                                            formData.fotoCantiere1
-                                        }
+                                            <button
+                                                type="button"
+                                                style={styles.imageButton}
+                                                onClick={() => galleryCantiere1Ref.current.click()}
+                                            >
+                                                Seleziona immagine
+                                            </button>
 
-                                        onChange={
-                                            handleChange
-                                        }
+                                            <button
+                                                type="button"
+                                                style={styles.imageButton}
+                                                onClick={() => cameraCantiere1Ref.current.click()}
+                                            >
+                                                Scatta foto
+                                            </button>
 
-                                    />
+                                        </div>
 
+                                        <input
+                                            ref={galleryCantiere1Ref}
+                                            type="file"
+                                            accept="image/*"
+                                            style={styles.hiddenInput}
+                                            onChange={(e)=>
+                                                handleImageChange(
+                                                    e.target.files[0],
+                                                    setFotoCantiere1File,
+                                                    setPreviewFotoCantiere1
+                                                )
+                                            }
+                                        />
 
-                                    <InputField
+                                        <input
+                                            ref={cameraCantiere1Ref}
+                                            type="file"
+                                            accept="image/*"
+                                            capture="environment"
+                                            style={styles.hiddenInput}
+                                            onChange={(e)=>
+                                                handleImageChange(
+                                                    e.target.files[0],
+                                                    setFotoCantiere1File,
+                                                    setPreviewFotoCantiere1
+                                                )
+                                            }
+                                        />
 
-                                        label="Foto cantiere 2"
+                                        {fotoCantiere1File && (
 
-                                        name="fotoCantiere2"
+                                            <div style={styles.selectedFile}>
 
-                                        value={
-                                            formData.fotoCantiere2
-                                        }
+                                                {fotoCantiere1File.name}
 
-                                        onChange={
-                                            handleChange
-                                        }
+                                            </div>
 
-                                    />
+                                        )}
+
+                                        {previewFotoCantiere1 && (
+
+                                            <div style={styles.previewContainer}>
+
+                                                <img
+                                                    src={previewFotoCantiere1}
+                                                    alt="Foto cantiere 1"
+                                                    style={styles.previewImage}
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    style={styles.removeImageButton}
+                                                    onClick={()=>
+                                                        removeImage(
+                                                            setFotoCantiere1File,
+                                                            setPreviewFotoCantiere1,
+                                                            galleryCantiere1Ref,
+                                                            cameraCantiere1Ref
+                                                        )
+                                                    }
+                                                >
+                                                    Rimuovi immagine
+                                                </button>
+
+                                            </div>
+
+                                        )}
+
+                                    </div>
+
+                                    <div style={styles.group}>
+
+                                        <label style={styles.label}>
+                                            Foto cantiere 2
+                                        </label>
+
+                                        <div style={styles.imageActions}>
+
+                                            <button
+                                                type="button"
+                                                style={styles.imageButton}
+                                                onClick={() => galleryCantiere2Ref.current.click()}
+                                            >
+                                                Seleziona immagine
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                style={styles.imageButton}
+                                                onClick={() => cameraCantiere2Ref.current.click()}
+                                            >
+                                                Scatta foto
+                                            </button>
+
+                                        </div>
+
+                                        <input
+                                            ref={galleryCantiere2Ref}
+                                            type="file"
+                                            accept="image/*"
+                                            style={styles.hiddenInput}
+                                            onChange={(e)=>
+                                                handleImageChange(
+                                                    e.target.files[0],
+                                                    setFotoCantiere2File,
+                                                    setPreviewFotoCantiere2
+                                                )
+                                            }
+                                        />
+
+                                        <input
+                                            ref={cameraCantiere2Ref}
+                                            type="file"
+                                            accept="image/*"
+                                            capture="environment"
+                                            style={styles.hiddenInput}
+                                            onChange={(e)=>
+                                                handleImageChange(
+                                                    e.target.files[0],
+                                                    setFotoCantiere2File,
+                                                    setPreviewFotoCantiere2
+                                                )
+                                            }
+                                        />
+
+                                        {fotoCantiere2File && (
+
+                                            <div style={styles.selectedFile}>
+
+                                                {fotoCantiere2File.name}
+
+                                            </div>
+
+                                        )}
+
+                                        {previewFotoCantiere2 && (
+
+                                            <div style={styles.previewContainer}>
+
+                                                <img
+                                                    src={previewFotoCantiere2}
+                                                    alt="Foto cantiere 2"
+                                                    style={styles.previewImage}
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    style={styles.removeImageButton}
+                                                    onClick={()=>
+                                                        removeImage(
+                                                            setFotoCantiere2File,
+                                                            setPreviewFotoCantiere2,
+                                                            galleryCantiere2Ref,
+                                                            cameraCantiere2Ref
+                                                        )
+                                                    }
+                                                >
+                                                    Rimuovi immagine
+                                                </button>
+
+                                            </div>
+
+                                        )}
+
+                                    </div>
+
 
                                 </div>
 
@@ -2335,6 +2744,112 @@ const styles = {
         borderRadius: "10px",
 
         fontWeight: "600"
+
+    },
+
+    preview: {
+
+        width: "100%",
+
+        maxHeight: "220px",
+
+        objectFit: "cover",
+
+        borderRadius: "10px",
+
+        border: "1px solid #cbd5e1",
+
+        marginBottom: "10px"
+
+    },
+
+    imageActions: {
+
+        display: "grid",
+
+            gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))",
+
+            gap: "12px"
+
+    },
+
+    imageButton: {
+
+        height: "48px",
+
+            borderRadius: "10px",
+
+            border: "1px solid #cbd5e1",
+
+            background: "#ffffff",
+
+            cursor: "pointer",
+
+            fontWeight: "600"
+
+    },
+
+    hiddenInput: {
+
+        display: "none"
+
+    },
+
+    selectedFile: {
+
+        padding: "10px",
+
+            border: "1px solid #e2e8f0",
+
+            borderRadius: "10px",
+
+            background: "#f8fafc",
+
+            fontSize: "14px",
+
+            color: "#475569"
+
+    },
+
+    previewContainer: {
+
+        display: "flex",
+
+            flexDirection: "column",
+
+            gap: "12px"
+
+    },
+
+    previewImage: {
+
+        width: "100%",
+
+            maxHeight: "260px",
+
+            objectFit: "cover",
+
+            borderRadius: "10px",
+
+            border: "1px solid #cbd5e1"
+
+    },
+
+    removeImageButton: {
+
+        height: "42px",
+
+            borderRadius: "10px",
+
+            border: "1px solid #ef4444",
+
+            background: "#ffffff",
+
+            color: "#dc2626",
+
+            cursor: "pointer",
+
+            fontWeight: "600"
 
     },
 

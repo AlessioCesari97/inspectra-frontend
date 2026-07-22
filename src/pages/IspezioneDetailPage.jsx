@@ -236,11 +236,15 @@ function IspezioneDetailPage(){
 
                         <div style={styles.headerActions}>
 
+                            <div style={styles.statusBadge}>
+
+                                {stato}
+
+                            </div>
 
                             {
 
                                 stato !== "ARCHIVIATA" &&
-
 
                                 <Link
 
@@ -255,14 +259,6 @@ function IspezioneDetailPage(){
                                 </Link>
 
                             }
-
-
-                            <div style={styles.statusBadge}>
-
-                                {stato}
-
-                            </div>
-
 
                         </div>
 
@@ -761,19 +757,15 @@ const styles = {
 
         backgroundColor:"#f1f5f9",
 
-        color:"#475569",
-
         border:"1px solid #cbd5e1",
 
-        padding:"9px 14px",
+        borderRadius:"10px",
 
-        borderRadius:"999px",
-
-        fontSize:"13px",
+        padding:"11px 16px",
 
         fontWeight:"700",
 
-        whiteSpace:"nowrap"
+        color:"#334155"
 
     },
 

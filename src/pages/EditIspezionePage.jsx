@@ -41,6 +41,8 @@ function EditIspezionePage() {
     const [loading, setLoading] =
         useState(false);
 
+    const [statoOriginale, setStatoOriginale] =
+        useState("");
 
     useEffect(() => {
 
@@ -58,6 +60,10 @@ function EditIspezionePage() {
 
             const ispezione =
                 await getIspezioneById(id);
+
+            setStatoOriginale(
+                ispezione.stato
+            );
 
 
             setFormData({
@@ -490,18 +496,25 @@ function EditIspezionePage() {
 
 
     /*
-     * Una Ispezione FIRMATA consente
-     * solo modifica report e archiviazione.
+     * statoOriginale rappresenta
+     * lo stato realmente salvato nel database.
      *
-     * Una ARCHIVIATA è completamente bloccata.
+     * formData.stato rappresenta
+     * lo stato che l'utente vuole raggiungere.
      */
 
     const bloccaDati =
-        isFirmata || isArchiviata;
+
+        statoOriginale === "FIRMATA"
+
+        ||
+
+        statoOriginale === "ARCHIVIATA";
 
 
     const bloccaReport =
-        isArchiviata;
+
+        statoOriginale === "ARCHIVIATA";
 
 
     function getStatiDisponibili() {
@@ -677,20 +690,6 @@ function EditIspezionePage() {
                         <div style={styles.lockedBox}>
 
                             L'ispezione è archiviata e non può più essere modificata.
-
-                        </div>
-
-                    }
-
-
-                    {
-
-                        isFirmata &&
-
-                        <div style={styles.infoBox}>
-
-                            L'ispezione è firmata.
-                            Puoi modificare solamente il report oppure archiviarla.
 
                         </div>
 
@@ -1223,10 +1222,8 @@ function EditIspezionePage() {
 
                     </div>
 
-
                     {
-
-                        !isArchiviata &&
+                        statoOriginale !== "ARCHIVIATA" &&
 
                         <button
 
@@ -1244,11 +1241,15 @@ function EditIspezionePage() {
 
                                     ? "Salvataggio..."
 
-                                    : isFirmata
+                                    : formData.stato === "ARCHIVIATA"
 
-                                        ? "Salva report / Archivia"
+                                        ? "Archivia Ispezione"
 
-                                        : "Salva Modifiche"
+                                        : formData.stato === "FIRMATA"
+
+                                            ? "Firma Ispezione"
+
+                                            : "Salva Modifiche"
 
                             }
 
@@ -1632,21 +1633,6 @@ const styles = {
         borderRadius: "10px",
 
         fontWeight: "700"
-
-    },
-
-
-    infoBox: {
-
-        background: "#eff6ff",
-
-        color: "#1e40af",
-
-        padding: "12px",
-
-        borderRadius: "10px",
-
-        fontWeight: "600"
 
     },
 

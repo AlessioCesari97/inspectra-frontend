@@ -1,5 +1,5 @@
 const BASE_URL =
-    "https://inspectra-backend-gw9h.onrender.com";
+    "http://localhost:8081";
 
 
 
@@ -594,6 +594,28 @@ export function getEsecuzioni(){
 
 
 
+// =========================
+// ESEGUI PROVA
+// =========================
+
+export function eseguiEsecuzione(id){
+
+    return request(
+
+        `/esecuzioni/${id}/esegui`,
+
+        {
+
+            method:"PUT"
+
+        }
+
+    );
+
+}
+
+
+
 
 
 
@@ -618,41 +640,105 @@ export function getEsecuzioneById(id){
 
 
 
-export function createEsecuzione(esecuzione){
+export function createEsecuzione(
 
+    esecuzione,
+
+    fotoPiano1 = null,
+
+    fotoPiano2 = null,
+
+    fotoPiano3 = null,
+
+    fotoCantiere1 = null,
+
+    fotoCantiere2 = null
+
+) {
+
+    const formData = new FormData();
+
+
+    const esecuzioneBlob = new Blob(
+
+        [JSON.stringify(esecuzione)],
+
+        {
+            type: "application/json"
+        }
+
+    );
+
+
+    formData.append(
+        "esecuzione",
+        esecuzioneBlob
+    );
+
+
+    if (fotoPiano1) {
+
+        formData.append(
+            "fotoPiano1",
+            fotoPiano1
+        );
+
+    }
+
+
+    if (fotoPiano2) {
+
+        formData.append(
+            "fotoPiano2",
+            fotoPiano2
+        );
+
+    }
+
+
+    if (fotoPiano3) {
+
+        formData.append(
+            "fotoPiano3",
+            fotoPiano3
+        );
+
+    }
+
+
+    if (fotoCantiere1) {
+
+        formData.append(
+            "fotoCantiere1",
+            fotoCantiere1
+        );
+
+    }
+
+
+    if (fotoCantiere2) {
+
+        formData.append(
+            "fotoCantiere2",
+            fotoCantiere2
+        );
+
+    }
 
 
     return request(
 
         "/esecuzioni",
 
-
         {
 
-            method:"POST",
+            method: "POST",
 
-
-            headers:{
-
-
-                "Content-Type":
-                    "application/json"
-
-            },
-
-
-
-            body:
-
-                JSON.stringify(esecuzione)
-
+            body: formData
 
         }
 
-
     );
-
-
 
 }
 
@@ -663,9 +749,112 @@ export function createEsecuzione(esecuzione){
 
 
 
+export function updateEsecuzione(
 
-export function updateEsecuzione(id,esecuzione){
+    id,
 
+    esecuzione,
+
+    fotoPiano1 = null,
+
+    fotoPiano2 = null,
+
+    fotoPiano3 = null,
+
+    fotoCantiere1 = null,
+
+    fotoCantiere2 = null
+
+) {
+
+    const formData = new FormData();
+
+
+    const esecuzioneBlob = new Blob(
+
+        [JSON.stringify(esecuzione)],
+
+        {
+
+            type: "application/json"
+
+        }
+
+    );
+
+
+    formData.append(
+
+        "esecuzione",
+
+        esecuzioneBlob
+
+    );
+
+
+    if (fotoPiano1) {
+
+        formData.append(
+
+            "fotoPiano1",
+
+            fotoPiano1
+
+        );
+
+    }
+
+
+    if (fotoPiano2) {
+
+        formData.append(
+
+            "fotoPiano2",
+
+            fotoPiano2
+
+        );
+
+    }
+
+
+    if (fotoPiano3) {
+
+        formData.append(
+
+            "fotoPiano3",
+
+            fotoPiano3
+
+        );
+
+    }
+
+
+    if (fotoCantiere1) {
+
+        formData.append(
+
+            "fotoCantiere1",
+
+            fotoCantiere1
+
+        );
+
+    }
+
+
+    if (fotoCantiere2) {
+
+        formData.append(
+
+            "fotoCantiere2",
+
+            fotoCantiere2
+
+        );
+
+    }
 
 
     return request(
@@ -674,30 +863,13 @@ export function updateEsecuzione(id,esecuzione){
 
         {
 
-            method:"PUT",
+            method: "PUT",
 
-
-            headers:{
-
-
-                "Content-Type":
-                    "application/json"
-
-            },
-
-
-
-            body:
-
-                JSON.stringify(esecuzione)
-
+            body: formData
 
         }
 
-
     );
-
-
 
 }
 // =========================

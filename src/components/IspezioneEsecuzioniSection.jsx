@@ -16,10 +16,11 @@ import {
 
     getEsecuzioniDisponibili,
 
-    associaEsecuzioneIspezione
+    associaEsecuzioneIspezione,
 
-}
-    from "../api/api";
+    eseguiEsecuzione
+
+} from "../api/api";
 
 
 
@@ -234,6 +235,78 @@ function IspezioneEsecuzioniSection({
 
         }
 
+
+    }
+
+
+    async function handleEsegui(esecuzione){
+
+        const conferma = window.confirm(
+
+            "Vuoi segnare questa prova come ESEGUITA?"
+
+        );
+
+        if(!conferma){
+
+            return;
+
+        }
+
+        try{
+
+            setError("");
+            setSuccess("");
+
+            await eseguiEsecuzione(
+
+                esecuzione.esecuzioneId
+
+            );
+
+            const immagini = window.confirm(
+
+                "Prova eseguita correttamente.\n\nVuoi inserire ora le immagini?"
+
+            );
+
+            if(immagini){
+
+                navigate(
+
+                    `/esecuzione/${esecuzione.esecuzioneId}/edit`
+
+                );
+
+                return;
+
+            }
+
+            if(onIspezioneChanged){
+
+                await onIspezioneChanged();
+
+            }
+
+            setSuccess(
+
+                "Prova eseguita correttamente."
+
+            );
+
+        }catch(error){
+
+            console.error(error);
+
+            setError(
+
+                error.message ||
+
+                "Errore durante l'esecuzione della prova"
+
+            );
+
+        }
 
     }
 
@@ -685,13 +758,12 @@ function IspezioneEsecuzioniSection({
 
                                                     e.stopPropagation();
 
-                                                    alert("Qui inseriremo la conferma ESEGUITA");
+                                                    handleEsegui(p);
 
                                                 }}
 
                                             >
-
-                                                ✔
+                                                ✔ Esegui
 
                                             </button>
 
@@ -716,7 +788,8 @@ function IspezioneEsecuzioniSection({
 
                                             >
 
-                                                ✖
+
+                                                ✖ Non eseguibile
 
                                             </button>
 
@@ -740,9 +813,7 @@ function IspezioneEsecuzioniSection({
                                                 }}
 
                                             >
-
-                                                ↺
-
+                                                ➜ Sposta
                                             </button>
 
                                         </div>
@@ -1301,20 +1372,30 @@ const styles = {
 
         display:"flex",
 
+        flexDirection:"column",
+
         gap:"8px",
 
-        justifyContent:"center"
+        alignItems:"stretch"
 
     },
 
 
     actionButton:{
 
-        width:"34px",
+        display:"flex",
 
-        height:"34px",
+        alignItems:"center",
 
-        borderRadius:"50%",
+        justifyContent:"center",
+
+        gap:"8px",
+
+        minWidth:"170px",
+
+        padding:"10px 14px",
+
+        borderRadius:"10px",
 
         border:"1px solid #cbd5e1",
 
@@ -1324,12 +1405,11 @@ const styles = {
 
         fontWeight:"700",
 
-        fontSize:"16px",
+        fontSize:"14px",
 
         transition:"0.2s"
 
     },
-
 
 };
 

@@ -201,6 +201,32 @@ const styles = {
 
     },
 
+    imageLink:{
+
+        display:"inline-flex",
+
+        alignItems:"center",
+
+        justifyContent:"center",
+
+        height:"40px",
+
+        padding:"0 14px",
+
+        borderRadius:"10px",
+
+        background:"#ffffff",
+
+        border:"1px solid #cbd5e1",
+
+        color:"#1e293b",
+
+        textDecoration:"none",
+
+        fontWeight:"600"
+
+    },
+
 
 
 
@@ -848,8 +874,6 @@ const styles = {
 
 
 
-
-
                         <Info
 
                             label="Foto piano"
@@ -860,7 +884,21 @@ const styles = {
 
                                     ?
 
-                                    "Presente"
+                                    <a
+
+                                        href={esecuzione.fotoPiano1}
+
+                                        target="_blank"
+
+                                        rel="noopener noreferrer"
+
+                                        style={styles.imageLink}
+
+                                    >
+
+                                        Visualizza immagine
+
+                                    </a>
 
                                     :
 
@@ -869,6 +907,7 @@ const styles = {
                             }
 
                         />
+
 
 
 
@@ -887,7 +926,21 @@ const styles = {
 
                                     ?
 
-                                    "Presente"
+                                    <a
+
+                                        href={esecuzione.fotoPiano2}
+
+                                        target="_blank"
+
+                                        rel="noopener noreferrer"
+
+                                        style={styles.imageLink}
+
+                                    >
+
+                                        📷 Visualizza foto
+
+                                    </a>
 
                                     :
 
@@ -915,7 +968,21 @@ const styles = {
 
                                     ?
 
-                                    "Presente"
+                                    <a
+
+                                        href={esecuzione.fotoPiano3}
+
+                                        target="_blank"
+
+                                        rel="noopener noreferrer"
+
+                                        style={styles.imageLink}
+
+                                    >
+
+                                        📷 Visualizza foto
+
+                                    </a>
 
                                     :
 
@@ -958,7 +1025,21 @@ const styles = {
 
                                         ?
 
-                                        "Presente"
+                                        <a
+
+                                            href={esecuzione.fotoCantiere1}
+
+                                            target="_blank"
+
+                                            rel="noopener noreferrer"
+
+                                            style={styles.imageLink}
+
+                                        >
+
+                                            📷 Visualizza foto
+
+                                        </a>
 
                                         :
 
@@ -967,11 +1048,6 @@ const styles = {
                                 }
 
                             />
-
-
-
-
-
 
 
 
@@ -985,7 +1061,21 @@ const styles = {
 
                                         ?
 
-                                        "Presente"
+                                        <a
+
+                                            href={esecuzione.fotoCantiere2}
+
+                                            target="_blank"
+
+                                            rel="noopener noreferrer"
+
+                                            style={styles.imageLink}
+
+                                        >
+
+                                            📷 Visualizza foto
+
+                                        </a>
 
                                         :
 
@@ -994,6 +1084,11 @@ const styles = {
                                 }
 
                             />
+
+
+
+
+
 
 
 
