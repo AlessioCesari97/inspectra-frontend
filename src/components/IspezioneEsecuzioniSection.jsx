@@ -622,12 +622,11 @@ function IspezioneEsecuzioniSection({
 
                     :
 
+                    <div style={styles.tableContainer}>
 
-                    <table style={styles.table}>
-
+                        <table style={styles.table}>
 
                         <thead>
-
 
                         <tr>
 
@@ -831,8 +830,9 @@ function IspezioneEsecuzioniSection({
 
                         </tbody>
 
-
                     </table>
+
+                </div>
 
             }
 
@@ -1078,7 +1078,7 @@ const styles = {
 
         color:"#ffffff",
 
-        padding:"12px 18px",
+        padding:"10px 14px",
 
         borderRadius:"12px",
 
@@ -1181,9 +1181,23 @@ const styles = {
 
         width:"100%",
 
+        minWidth:"1100px",
+
         borderCollapse:"collapse",
 
-        tableLayout:"fixed"
+        tableLayout:"auto"
+
+    },
+
+    tableContainer:{
+
+        width:"100%",
+
+        overflowX:"auto",
+
+        WebkitOverflowScrolling:"touch",
+
+        borderRadius:"12px"
 
     },
 
@@ -1200,7 +1214,9 @@ const styles = {
 
         fontSize:"13px",
 
-        fontWeight:"700"
+        fontWeight:"700",
+
+        whiteSpace:"nowrap"
 
     },
 
@@ -1215,7 +1231,7 @@ const styles = {
 
         fontWeight:"600",
 
-        wordBreak:"break-word"
+        whiteSpace:"nowrap"
 
     },
 
@@ -1380,7 +1396,6 @@ const styles = {
 
     },
 
-
     actionButton:{
 
         display:"flex",
@@ -1389,11 +1404,11 @@ const styles = {
 
         justifyContent:"center",
 
-        gap:"8px",
+        gap:"6px",
 
-        minWidth:"170px",
+        minWidth:"145px",
 
-        padding:"10px 14px",
+        padding:"8px 12px",
 
         borderRadius:"10px",
 
@@ -1405,7 +1420,7 @@ const styles = {
 
         fontWeight:"700",
 
-        fontSize:"14px",
+        fontSize:"13px",
 
         transition:"0.2s"
 
